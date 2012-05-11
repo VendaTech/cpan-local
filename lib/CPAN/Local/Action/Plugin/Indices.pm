@@ -6,6 +6,8 @@ use warnings;
 use CPAN::Index::API;
 use CPAN::Index::API::Object::Package;
 use File::Path;
+use CPAN::Local::Util;
+use CPAN::DistnameInfo;
 use Path::Class qw(file dir);
 
 use Moose;
@@ -52,17 +54,29 @@ sub index
 
 	foreach my $distro ( @distros ) 
 	{
-		my $meta = $distro->{meta};
-		my $provides = $meta->provides;
+		my %provides = %{ $distro->{meta}->provides };
+        
+        unless ( %provides )
+        {
+            my $distnameinfo = CPAN::DistnameInfo->new(
+                file($distro->{filename})->basename
+            );
+            
+            my $fake_package = CPAN::Local::Util::dist_name_to_package(
+                name => $distnameinfo->dist
+            );
 
-		while( my ($package, $specs) = each %$provides )
+            $provides{$fake_package} = { version => $distnameinfo->version };
+        }
+
+		while( my ($package, $specs) = each %provides )
 		{
             my $version = $specs->{version};
 
 			if ( my $existing_package = $index->find_package_by_name($package) )
 			{
-				$existing_package->version($version) 
-					if $version > $existing_package->version;
+                $existing_package->version($version) 
+                	if $version > $existing_package->version;
 			}
 			else
 			{

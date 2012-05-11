@@ -38,4 +38,15 @@ sub calculate_dist_path
     }
 }
 
+sub dist_name_to_package
+{
+    my %opt = @_;
+
+    return unless my $name = $opt{name};
+
+    $name =~ s/-/::/;
+
+    return $name;
+}
+
 1;

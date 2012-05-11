@@ -1,7 +1,5 @@
 package CPAN::Local::App::Command::update;
 
-use Dist::Metadata;
-
 use Moose;
 extends 'MooseX::App::Cmd::Command';
 

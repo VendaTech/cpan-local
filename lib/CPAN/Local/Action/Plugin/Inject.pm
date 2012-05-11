@@ -50,7 +50,7 @@ sub inject
         File::Copy::copy( $distro->{filename}, $filepath->stringify ) or warn $!;
 
         $distro->{filename} = $filepath->stringify;
-        $distro->{path} = $path->stringify;
+        $distro->{path} = $distro_path;
 
         $distro->{meta} = Dist::Metadata->new(
             file => $distro->{filename}
