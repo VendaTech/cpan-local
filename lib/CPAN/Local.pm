@@ -8,6 +8,7 @@ use File::Path  qw(make_path);
 use File::Copy;
 use CPAN::Local::MVP::Assembler;
 use Config::MVP::Reader::Finder;
+use Log::Dispatchouli;
 
 use Moose;
 use namespace::clean -except => 'meta';
@@ -48,6 +49,13 @@ has 'config_filename' =>
     default  => 'cpanlocal'
 );
 
+has 'logger' =>
+(
+	is         => 'ro',
+	isa        => 'Log::Dispatchouli',
+	lazy_build => 1,
+);
+
 sub plugins_with 
 {
     my ($self, $role) = @_;
@@ -57,6 +65,17 @@ sub plugins_with
     
     my @plugins = grep { $_->does($role) } values %{ $self->plugins };
     return @plugins;
+}
+
+sub _build_logger
+{
+    return Log::Dispatchouli->new({
+        ident     => 'CPAN::Local',
+        to_stdout => 1,
+        log_pid   => 0,
+        quiet_fatal => 'stdout',
+    });
+  }
 }
 
 sub _build_config 
@@ -80,13 +99,14 @@ sub _build_plugins
 
     my %plugins;
 
-    my %args = ( root => $self->root );
-
     for my $section ($self->config->sections) 
     {
         my $plugin = $section->package->new(
-            %args,
             %{ $section->payload },
+			root   => $self->root,
+			logger => $self->logger->proxy({ 
+				proxy_prefix => "[" . $section->name . "] "
+			),
         );
         $plugins{$section->name} = $plugin;
     }

@@ -7,9 +7,10 @@ use Path::Class qw(file dir);
 use File::Path;
 use File::Copy;
 use Dist::Metadata;
-use CPAN::Local::Util;
+use CPAN::Local::Distribution;
 
 use Moose;
+extends 'CPAN::Local::Action::Plugin';
 with 'CPAN::Local::Action::Role::Inject';
 use namespace::clean -except => 'meta';
 
@@ -20,13 +21,6 @@ has config =>
 	predicate => 'has_config',
 );
 
-has root =>
-(
-    is       => 'ro',
-    isa      => 'Str',
-    required => 1,
-);
-
 sub inject
 {
     my ( $self, @distros ) = @_;
@@ -35,28 +29,41 @@ sub inject
 
     foreach my $distro (@distros)
     {
-        ### CREATE AUTHOR DIRECTORY ###
-        my $distro_path = CPAN::Local::Util::calculate_dist_path(
-            authorid => $distro->{authorid},
-            filename => $distro->{filename},
-        );
-
-        my $path = file( $self->root, $distro_path )->dir;
+        my $path = file( $self->root, $distro->path )->dir;
         $path->mkpath;
 
-        ### COPY DISTRIBUTION ###
-        my $filename = file($distro->{filename})->basename;
-        my $filepath = file( $path, $filename );
-        File::Copy::copy( $distro->{filename}, $filepath->stringify ) or warn $!;
+        my $injected_filename = file(
+			$path, file($distro->filename)->basename
+		)->stringify;
+        
+		unless ( File::Copy::copy( $distro->filename, $injected_filename ) )
+		{
+			$self->log($!);
+			next;
+		}
+		
+        my $provides = Dist::Metadata->new(
+            file => $injected_filename
+        )->meta->provides;
 
-        $distro->{filename} = $filepath->stringify;
-        $distro->{path} = $distro_path;
+		my %provides = { $_ => $provides->{$_}{version} } keys %$provides;
 
-        $distro->{meta} = Dist::Metadata->new(
-            file => $distro->{filename}
-        )->meta;
+        unless ( %provides )
+        {
+            my $distnameinfo = CPAN::DistnameInfo->new(
+                file($distro->filename)->basename
+            );
+            
+            my ($fake_package = $distnameinfo->dist) =~ s/-/::/;
 
-        push @injected, $distro;
+            $provides{$fake_package} = $distnameinfo->version;
+        }
+
+        push @injected, CPAN::Local::Distribution->new(
+			filename => $injected_filename,
+			authorid => $distro->authorid,
+			provides => \%provides,
+		);
     }
 
     return @injected;

@@ -11,6 +11,7 @@ use CPAN::DistnameInfo;
 use Path::Class qw(file dir);
 
 use Moose;
+extends 'Cpan::Local::Action::Plugin';
 with 'CPAN::Local::Action::Role::Initialise'; 
 with 'CPAN::Local::Action::Role::Index';
 use namespace::clean -except => 'meta';
@@ -22,13 +23,6 @@ has 'uri' =>
 	required => 1 
 );
 
-has 'root' =>
-(
-    is       => 'ro',
-    isa      => 'Str',
-    required => 1,
-);
-
 sub initialise
 {
     my $self = shift;
@@ -37,7 +31,7 @@ sub initialise
 
     my $index = CPAN::Index::API->new(
         repo_path => $self->root,
-        repo_uri  => 'http://www.example.com/',
+        repo_uri  => $self->uri,
     );
     
     $index->write_all_files;
@@ -54,25 +48,10 @@ sub index
 
 	foreach my $distro ( @distros ) 
 	{
-		my %provides = %{ $distro->{meta}->provides };
+		my %provides = $distro->provides->elements;
         
-        unless ( %provides )
-        {
-            my $distnameinfo = CPAN::DistnameInfo->new(
-                file($distro->{filename})->basename
-            );
-            
-            my $fake_package = CPAN::Local::Util::dist_name_to_package(
-                name => $distnameinfo->dist
-            );
-
-            $provides{$fake_package} = { version => $distnameinfo->version };
-        }
-
-		while( my ($package, $specs) = each %provides )
+		while( my ($package, $version) = each %provides )
 		{
-            my $version = $specs->{version};
-
 			if ( my $existing_package = $index->find_package_by_name($package) )
 			{
                 $existing_package->version($version) 
