@@ -1,4 +1,4 @@
-package CPAN::Local::Action::Plugin::BackPAN;
+package CPAN::Local::Action::Plugin::AddFromURI;
 
 use strict;
 use warnings;
@@ -10,8 +10,10 @@ use File::Temp;
 use URI;
 use LWP::Simple;
 use CPAN::DistnameInfo;
+use CPAN::Local::Distribution;
 
 use Moose;
+extends 'CPAN::Local::Action::Plugin';
 with 'CPAN::Local::Action::Role::Gather';
 use namespace::clean -except => 'meta';
 
@@ -22,20 +24,20 @@ has config =>
 	predicate => 'has_config',
 );
 
-has distros =>
+has lines =>
 (
 	is         => 'ro',
 	isa        => 'ArrayRef',
 	lazy_build => 1,
 	traits     => ['Array'],
-	handles    => { distro_list => 'elements' },
+	handles    => { line_list => 'elements' },
 );
 
-has remote => 
+has prefix => 
 (
 	is      => 'ro',
 	isa     => 'Str',
-	default => 'http://backpan.perl.org/'
+	default => '',
 );
 
 has cache => 
@@ -45,23 +47,29 @@ has cache =>
 	lazy_build => 1,
 );
 
-sub _build_distros
+has cpanid =>
+(
+	is        => 'ro',
+	isa       => 'Str',
+	predicate => 'has_cpanid',
+);
+
+sub _build_lines
 {
 	my $self = shift;
 
-	my @distros;
+	my @lines;
 
 	if ( $self->has_config )
 	{
 		foreach my $line ( file( $self->config )->slurp )
 		{
 			chomp $line;
-			my $distro = CPAN::DistnameInfo->new($line);
-			push @distros, $distro;
+			push @lines, $line;
 		}
 	}
 
-	return \@distros;
+	return \@lines;
 }
 
 sub _build_cache 
@@ -73,22 +81,29 @@ sub gather
 {
 	my ($self, @distros) = @_;
 
-	foreach my $distro ( $self->distro_list )
+	foreach my $line ( $self->line_list )
 	{
-       my $path = file($self->cache, $distro->filename);
+		my $distname = $self->has_cpanid 
+			? sprintf '%s/%s', $self->cpanid, file($line)->basename
+			: $line;
+
+		my $distro =  CPAN::DistnameInfo->new($distname);
+        my $path = file($self->cache, $distro->filename);
         
         unless ( -e $path ) {	
-			my $uri = URI->new( $self->remote );
-			$uri->path( $distro->pathname );
+			my $uri = URI->new($self->prefix . $line);
             my $rc = LWP::Simple::getstore($uri->as_string, $path->stringify);
             
             if ( LWP::Simple::is_error($rc) ) {
-                warn "Error fetching " . $uri->as_string;
+                $self->log("Error fetching " . $uri->as_string);
                 next;
             }
         }
 
-		push @distros, { filename => $path, authorid => $distro->cpanid };
+		push @distros, CPAN::Local::Distribution->new(
+            filename => $path, 
+            authorid => $distro->cpanid
+        );
 	}
 
 	return @distros;

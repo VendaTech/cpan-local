@@ -50,4 +50,4 @@ sub _build_metadata
     return Dist::Metadata->new( file => $self->filename )->meta;
 }
 
-1;
+__PACKAGE__->meta->make_immutable;

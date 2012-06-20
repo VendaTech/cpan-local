@@ -11,6 +11,7 @@ use CPAN::DistnameInfo;
 use Path::Class qw(file dir);
 
 use Moose;
+extends 'Cpan::Local::Action::Plugin';
 with 'CPAN::Local::Action::Role::Initialise'; 
 with 'CPAN::Local::Action::Role::Index';
 use namespace::clean -except => 'meta';
@@ -43,7 +44,7 @@ sub initialise
 
     my $index = CPAN::Index::API->new(
         repo_path => $self->root,
-        repo_uri  => 'http://www.example.com/',
+        repo_uri  => $self->uri,
     );
     
     $index->write_all_files;
@@ -68,7 +69,7 @@ sub index
                 file($distro->filename)->basename
             );
             
-            ( my $fake_package = $distnameinfo->dist ) =~ s/-/::/;
+            ( my $fake_package = $distnameinfo->dist ) =~ s/-/::/g;
             
             $provides{$fake_package} = { version => $distnameinfo->version };
         }

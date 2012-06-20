@@ -7,10 +7,10 @@ use Path::Class qw(file dir);
 use File::Path;
 use File::Copy;
 use Dist::Metadata;
-use CPAN::Local::Util;
 use CPAN::Local::Distribution;
 
 use Moose;
+extends 'CPAN::Local::Action::Plugin';
 with 'CPAN::Local::Action::Role::Inject';
 use namespace::clean -except => 'meta';
 
@@ -19,13 +19,6 @@ has config =>
 	is        => 'ro',
 	isa       => 'Str',
 	predicate => 'has_config',
-);
-
-has root =>
-(
-    is       => 'ro',
-    isa      => 'Str',
-    required => 1,
 );
 
 sub inject
@@ -53,7 +46,8 @@ sub inject
         }
         else
         {
-            warn $!;
+			$self->log($!);
+			next;
         }
     }
 
