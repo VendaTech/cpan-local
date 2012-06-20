@@ -11,7 +11,7 @@ use CPAN::DistnameInfo;
 use Path::Class qw(file dir);
 
 use Moose;
-extends 'Cpan::Local::Action::Plugin';
+extends 'CPAN::Local::Action::Plugin';
 with 'CPAN::Local::Action::Role::Initialise'; 
 with 'CPAN::Local::Action::Role::Index';
 use namespace::clean -except => 'meta';
