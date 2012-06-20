@@ -29,6 +29,12 @@ has 'root' =>
     required => 1,
 );
 
+has 'auto_provides' => 
+(
+    is  => 'ro',
+    isa => 'Bool',
+);
+
 sub initialise
 {
     my $self = shift;
@@ -54,18 +60,16 @@ sub index
 
 	foreach my $distro ( @distros ) 
 	{
-		my %provides = %{ $distro->{meta}->provides };
+		my %provides = %{ $distro->metadata->provides };
         
-        unless ( %provides )
+        if ( ! %provides and $self->auto_provides )
         {
             my $distnameinfo = CPAN::DistnameInfo->new(
-                file($distro->{filename})->basename
+                file($distro->filename)->basename
             );
             
-            my $fake_package = CPAN::Local::Util::dist_name_to_package(
-                name => $distnameinfo->dist
-            );
-
+            ( my $fake_package = $distnameinfo->dist ) =~ s/-/::/;
+            
             $provides{$fake_package} = { version => $distnameinfo->version };
         }
 
@@ -83,7 +87,7 @@ sub index
 				my $new_package = CPAN::Index::API::Object::Package->new(
 					name         => $package,
 					version      => $version,
-					distribution => $distro->{path},
+					distribution => $distro->path,
 				);
 				$index->add_package($new_package);
 			}

@@ -1,0 +1,12 @@
+CPAN::Local
+===========
+
+1. Distribution class
+2. Repository API
+3. Mirroring
+4. Proper stash
+5. Duplicates plugin
+6. CPAN::Index::API whois file
+7. CPAN::Index::API plugins
+8. CPAN::Index::API from url
+9. CPAN::Index::API refresh

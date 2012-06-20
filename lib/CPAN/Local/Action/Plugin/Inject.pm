@@ -8,6 +8,7 @@ use File::Path;
 use File::Copy;
 use Dist::Metadata;
 use CPAN::Local::Util;
+use CPAN::Local::Distribution;
 
 use Moose;
 with 'CPAN::Local::Action::Role::Inject';
@@ -36,27 +37,24 @@ sub inject
     foreach my $distro (@distros)
     {
         ### CREATE AUTHOR DIRECTORY ###
-        my $distro_path = CPAN::Local::Util::calculate_dist_path(
-            authorid => $distro->{authorid},
-            filename => $distro->{filename},
-        );
-
-        my $path = file( $self->root, $distro_path )->dir;
+        my $path = file( $self->root, $distro->path )->dir;
         $path->mkpath;
 
         ### COPY DISTRIBUTION ###
-        my $filename = file($distro->{filename})->basename;
-        my $filepath = file( $path, $filename );
-        File::Copy::copy( $distro->{filename}, $filepath->stringify ) or warn $!;
+        my $new_filepath = file( $path, file( $distro->filename )->basename )->stringify;
 
-        $distro->{filename} = $filepath->stringify;
-        $distro->{path} = $distro_path;
-
-        $distro->{meta} = Dist::Metadata->new(
-            file => $distro->{filename}
-        )->meta;
-
-        push @injected, $distro;
+        if ( File::Copy::copy( $distro->filename, $new_filepath ) )
+        {
+            push @injected, CPAN::Local::Distribution->new(
+                filename => $new_filepath,
+                authorid => $distro->authorid,
+                path     => $distro->path,
+            );
+        }
+        else
+        {
+            warn $!;
+        }
     }
 
     return @injected;
