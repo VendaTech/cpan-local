@@ -54,6 +54,4 @@ sub inject
     return @injected;
 }
 
-
-
 __PACKAGE__->meta->make_immutable;

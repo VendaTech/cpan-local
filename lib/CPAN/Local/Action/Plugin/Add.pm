@@ -1,4 +1,4 @@
-package CPAN::Local::Action::Plugin::Add;
+package CPAN::Local::Action::Plugin::DistroList;
 
 use strict;
 use warnings;
@@ -8,6 +8,7 @@ use File::Path qw(make_path);
 use Path::Class qw(file dir);
 use File::Temp;
 use URI;
+use Try::Tiny;
 use LWP::Simple;
 use CPAN::DistnameInfo;
 use CPAN::Local::Distribution;
@@ -17,11 +18,11 @@ extends 'CPAN::Local::Action::Plugin';
 with 'CPAN::Local::Action::Role::Gather';
 use namespace::clean -except => 'meta';
 
-has config => 
+has list => 
 (
 	is        => 'ro',
 	isa       => 'Str',
-	predicate => 'has_config',
+	predicate => 'has_list',
 );
 
 has prefix => 
@@ -60,7 +61,6 @@ has local =>
 	isa        => 'Bool',
 );
 
-
 sub _build_uris
 {
 	my $self = shift;
@@ -69,7 +69,7 @@ sub _build_uris
 	
     my @uris;
 
-	if ( $self->has_config )
+	if ( $self->has_list )
 	{
 		foreach my $line ( file( $self->config )->slurp )
 		{
@@ -83,7 +83,7 @@ sub _build_uris
 
 sub _build_cache 
 {
-    return File::Temp::tempdir( CLEANUP => 0 );
+    return File::Temp::tempdir( CLEANUP => 1 );
 }
 
 sub gather
@@ -94,92 +94,15 @@ sub gather
 
 	foreach my $uri_string ( $self->uri_list )
 	{
-        my $distro = $self->local
-            ? $self->add_local($uri_string)
-            : $self->add_remote($uri_string);
+        my $distro = try { $self->local
+            ? $self->distribution_class->new_from_path($uri_string)
+            : $self->distribution_class->new_from_uri($uri_string)
+        } catch { $self->log($_) };
         
         push @distros, $distro if $distro;
     }
 
 	return @distros;
-}
-
-sub add_local
-{
-    my ( $self, $uri_string ) = @_;
-
-    my $authorid = $self->has_authorid
-        ? $self->authorid
-        : _get_authorid_from_path_parts( file($uri_string)->dir->dir_list )
-
-    if ( not -e $uri_string )
-    {
-        $self->log("File $uri_string does not exist");
-        return;
-    }
-    elsif ( not $authorid )
-    {
-        $self->log("Cannot determine authorid for path $uri_string");
-        return;
-    }
-    else
-    {
-        return CPAN::Local::Distribution->new(
-            filename => $uri_string, 
-            authorid => $auhtorid,
-        );
-    }
-}
-
-sub add_remote
-{
-    my ( $self, $uri_string ) = @_;
-
-    my $uri = URI->new($uri_string);
-    my @path_parts = $uri->path_segments;
-    
-    my $authorid = $self->has_authorid
-        ? $self->authorid,
-        : _get_authorid_from_path_parts(@path_parts)
-
-    if ( $authorid )
-    {
-        my $distnameinfo = CPAN::DistnameInfo->new(
-            '%s/%s', $authorid, $path_parts[-1]
-        );
-
-        my $filename = file($self->cache, $distnameinfo->filename)->strinfigy;
-        
-        unless ( -e $path ) {	
-            my $rc = LWP::Simple::getstore($uri->as_string, $filename);
-            
-            if ( LWP::Simple::is_error($rc) ) {
-                $self->log("Error fetching " . $uri->as_string);
-                return;
-            }
-            else
-            {
-                return CPAN::Local::Distribution->new(
-                    filename => $filename,
-                    authorid => $authorid,
-                );
-            }
-        }
-    }
-    else
-    {
-        $self->log("Cannot determine authorid for uri $uri_string");
-        return;
-    }
-}
-
-sub  _get_authorid_from_path_parts
-{
-    my ($self, @path_parts) = @_;
-    
-    my $distname = file( splice( @path_parts, -5 ) )->as_foreign('Unix')->stringify;
-
-    return CPAN::DistnameInfo->new($distname)->authorid;
 }
 
 __PACKAGE__->meta->make_immutable;

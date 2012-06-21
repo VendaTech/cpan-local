@@ -14,4 +14,11 @@ has 'root' =>
     required => 1,
 );
 
+has 'distribution_class' =>
+(
+    is      => 'ro',
+    isa     => 'Str',
+    default => 'CPAN::Local::Distribution',
+);
+
 __PACKAGE__->meta->make_immutable;
