@@ -4,16 +4,20 @@ use strict;
 use warnings;
 
 use Path::Class qw(file dir);
+use Carp        qw(croak);
+use LWP::Simple qw(is_error getstore);
+use File::Temp  qw(tempdir);
 use Dist::Metadata;
 use CPAN::DistnameInfo;
 use Digest::MD5;
 use URI;
-use LWP::Simple;
 use Moose;
 use namespace::clean -except => 'meta';
 
 has filename => ( is => 'ro', isa => 'Str', required => 1 );
 has authorid => ( is => 'ro', isa => 'Str', required => 1 );
+has uri      => ( is => 'ro', isa => 'Str' );
+has cache    => ( is => 'ro', isa => 'Str' );
 has path     => ( is => 'ro', isa => 'Str', lazy_build => 1 );
 has metadata => ( is => 'ro', isa => 'CPAN::Meta', lazy_build => 1 );
 has nameinfo => ( is => 'ro', isa => 'CPAN::DistnameInfo', lazy_build => 1 );
@@ -25,71 +29,69 @@ around BUILDARGS => sub {
     
     my %args = @_;
 
-    if ( exists $args{authorid} ) 
+    croak "Please specify either 'filename' or 'uri', not both"
+        if exists $args{uri} and exists $args{filename};
+
+    croak "Attribute 'cache' not permitted unless 'uri' is also specified"
+        if exists $args{cache} and not exists $args{uri};
+
+    # force default Moose error for required 'filename'
+    return $class->$orig(%args)
+        unless exists $args{filename} or exists $args{uri};
+
+    my ( $uri, @uri_segments );
+
+    if ( $args{uri} )
     {
-        return $class->$orig(@_);
+        $uri = URI->new($args{uri});
+        @uri_segments = $uri->path_segments;
     }
-    else
+
+    if ( not exists $args{authorid} ) 
     {
-        my $path = file($args{filename});
+        my $path = file( $args{filename} ? $args{filename} : @uri_segments );
         
         # calculate the path, e.g. 'authors/id/A/AD/ADAMK/File-Which-1.09.tar.gz'
-        my @path_parts = $path->dir->dir_list, $path->basename;
-        @path_parts = splice( @path_parts, -5 );
-        my $distname = file(@path_parts)->as_foreign('Unix')->stringify;
-
-        # get the authorid
-        $args{authorid} = CPAN::DistnameInfo->new($distname)->cpanid;
-        # also supply path, since we have already calculated it
-        $args{path} = $distname unless exists $args{path};
-
-        return $class->$orig(%args);
-    }
-};
-
-sub new_from_uri
-{
-    my ( $self, $uri_string ) = @_;
-
-    # args: uri, authorid, cache
-
-    my $uri = URI->new($uri_string);
-    my @path_parts = $uri->path_segments;
-    
-    my $authorid = $self->has_authorid
-        ? $self->authorid
-        : _get_authorid_from_path_parts(@path_parts);
-
-    if ( $authorid )
-    {
-        my $distnameinfo = CPAN::DistnameInfo->new(
-            '%s/%s', $authorid, $path_parts[-1]
-        );
-
-        my $filename = file($self->cache, $distnameinfo->filename)->strinfigy;
+        my @path_parts = ( $path->dir->dir_list, $path->basename );
         
-        unless ( -e $filename ) {	
-            my $rc = LWP::Simple::getstore($uri->as_string, $filename);
-            
-            if ( LWP::Simple::is_error($rc) ) {
-                $self->log("Error fetching " . $uri->as_string);
-                return;
-            }
-            else
-            {
-                return CPAN::Local::Distribution->new(
-                    filename => $filename,
-                    authorid => $authorid,
-                );
-            }
+        # get the last 6 parts of the path
+        @path_parts = splice( @path_parts, -6 ) if @path_parts >= 6;
+
+        # make sure we use only forward slashes
+        my $distname = file(@path_parts)->as_foreign('Unix')->stringify;
+        
+        # get the authorid
+        my $distnameinfo = CPAN::DistnameInfo->new($distname);
+        $args{authorid} = $distnameinfo->cpanid
+            or croak "'authorid' not set and could not be deduced from $path";
+
+        # also supply path and nameinfo, since we have already calculated it
+        $args{path} = $distname unless $args{path};
+        $args{nameinfo} = $distnameinfo unless $args{nameinfo};
+    }
+
+    if ( $args{uri} )
+    {
+        $args{path} = __PACKAGE__->new(
+            filename => $uri_segments[-1],
+            authorid => $args{authorid},
+        )->path unless $args{path};
+
+        $args{cache} = tempdir( CLEANUP => 1 ) unless $args{cache};
+
+        my $filename = file($args{cache}, $args{path});
+        $filename->dir->mkpath;
+
+        if ( not -e $filename )
+        {
+            is_error( getstore( $uri->as_string, $filename->stringify ) )
+                ? croak "Error fetching " . $uri->as_string
+                : ( $args{filename} = $filename->stringify );
         }
     }
-    else
-    {
-        $self->log("Cannot determine authorid for uri $uri_string");
-        return;
-    }
-}
+
+    return $class->$orig(%args);
+};
 
 sub _build_path
 {
