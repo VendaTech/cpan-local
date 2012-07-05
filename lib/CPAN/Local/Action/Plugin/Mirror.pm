@@ -19,31 +19,50 @@ has uri =>
     required => 1,
 );
 
+has cache => 
+(
+	is        => 'ro',
+	isa       => 'Str',
+    predicate => 'has_cache',
+);
+
 sub gather
 {
 	my $self = shift;
 
     my @distros;
 
-    my $index = CPAN::Index::API->new_from_uri($self->uri);
+    my $index = CPAN::Index::API->new_from_uri( $self->uri );
 
     foreach my $distro ( $index->distribution_list )
     {
         # find out if it already exists in our repo
-        next if -e file($self->repo, $distro_path);
+        next if -e file( $self->repo, $distro->path );
 
         # determine uri for the distro
-        my $dist_uri = URI->new($self->uri);
-        my @existing_segments = $dist_uri->path_segments;
-        my $distro_path = file($distro->path);
-        my @distro_segments = ($distro_path->dir->dir_list, $distro_path->basename);
-        $dist_uri->path_segments(@existing_segments, @distro_segments);
-        
+        my $distro_uri = _expand_distro_uri( $self->uri, $distro->path );
+
         # add to list
-        push @distros, CPAN::Local::Distribution->new_from_uri($dist_uri->as_string);
+        my %args = ( uri => $distro_uri );
+        $args{cache} = $self->cache if $self->has_cache;
+        push @distros, $self->distribution_class->new( %args );
     }
 
     return @distros;
+}
+
+sub _expand_distro_uri {
+    my ( $repo_uri, $distro_path ) = @_;
+
+    my $distro_uri  = URI->new( $repo_uri );
+    my $distro_file = file( $distro_path );
+    
+    my @existing_segments = $distro_uri->path_segments;
+    my @distro_segments   = ( $distro_file->dir->dir_list, $distro_file->basename );
+    
+    $distro_uri->path_segments( @existing_segments, @distro_segments );
+
+    return $distro_uri->as_string;
 }
 
 __PACKAGE__->meta->make_immutable;

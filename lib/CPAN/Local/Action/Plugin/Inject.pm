@@ -8,6 +8,7 @@ use File::Path;
 use File::Copy;
 use Dist::Metadata;
 use CPAN::Local::Distribution;
+use CPAN::Checksums;
 
 use Moose;
 extends 'CPAN::Local::Action::Plugin';
@@ -30,11 +31,11 @@ sub inject
     foreach my $distro (@distros)
     {
         ### CREATE AUTHOR DIRECTORY ###
-        my $path = file( $self->root, $distro->path )->dir;
-        $path->mkpath;
+        my $authordir = file( $self->root, $distro->path )->dir;
+        $authordir->mkpath;
 
         ### COPY DISTRIBUTION ###
-        my $new_filepath = file( $path, file( $distro->filename )->basename )->stringify;
+        my $new_filepath = file( $authordir, file( $distro->filename )->basename )->stringify;
 
         if ( File::Copy::copy( $distro->filename, $new_filepath ) )
         {
@@ -43,6 +44,8 @@ sub inject
                 authorid => $distro->authorid,
                 path     => $distro->path,
             );
+
+            CPAN::Checksums::updatedir( $authordir );
         }
         else
         {

@@ -1,8 +1,5 @@
-CPAN::Index::API
-================
+CPAN::Local
+===========
 
-1. Plugins
-2. Distribution support
-3. From url
-4. Refresh
-5. Whois file
+1. Test for checksums
+2. Use Test::Fake::HTTPD to test mirror and add plugins
