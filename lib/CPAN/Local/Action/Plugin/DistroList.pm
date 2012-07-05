@@ -71,7 +71,7 @@ sub _build_uris
 
 	if ( $self->has_list )
 	{
-		foreach my $line ( file( $self->config )->slurp )
+		foreach my $line ( file( $self->list )->slurp )
 		{
 			chomp $line;
 			push @uris, $prefix . $line;
@@ -92,12 +92,17 @@ sub gather
 
     my @distros;
 
-	foreach my $uri_string ( $self->uri_list )
+	foreach my $uri ( $self->uri_list )
 	{
-        my $distro = try { $self->local
-            ? $self->distribution_class->new_from_path($uri_string)
-            : $self->distribution_class->new_from_uri($uri_string)
-        } catch { $self->log($_) };
+        my %args = $self->local
+            ? ( filename => $uri )
+            : ( uri => $uri, cache => $self->cache );
+
+        $args{authorid} = $self->authorid if $self->has_authorid;
+
+        my $distro = 
+            try   { $self->distribution_class->new(%args) }
+            catch { $self->log($_) };
         
         push @distros, $distro if $distro;
     }
