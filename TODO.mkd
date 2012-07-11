@@ -1,5 +1,7 @@
 CPAN::Local
 ===========
 
-1. Test for checksums
-2. Use Test::Fake::HTTPD to test mirror and add plugins
+1. Rewrite CPAN::Local tests to use fake distros
+2. Make checksums a separtate module
+3. Tests for mirror plugin
+4. Make CPAN::Local::Distribution composable with roles
