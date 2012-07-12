@@ -2,6 +2,7 @@ use strict;
 use warnings;
 
 use CPAN::Local::Action::Plugin::Inject;
+use Module::Faker::Dist;
 use File::Temp qw(tempdir);
 use Path::Class qw(file);
 use CPAN::Local::Distribution;
@@ -21,11 +22,15 @@ isa_ok( $plugin, 'CPAN::Local::Action::Plugin::Inject' );
 my %distros = (
     file_which => CPAN::Local::Distribution->new(
         authorid => 'ADAMK',
-        filename => file('t/distributions/File-Which-1.09.tar.gz')->stringify,
+        filename => Module::Faker::Dist->new(
+            name => 'File-Which'
+        )->make_archive,
     ),
     any_moose => CPAN::Local::Distribution->new(
         authorid => 'SARTAK',
-        filename => file('t/distributions/Any-Moose-0.08.tar.gz')->stringify,
+        filename => Module::Faker::Dist->new(
+            name => 'Any-Moose'
+        )->make_archive,
     ),
     bogus => CPAN::Local::Distribution->new(
         authorid => 'FOOBAR',
@@ -43,7 +48,7 @@ is ( scalar @injected, 2, 'inject succeded' );
 
 is_deeply (
     [ sort map file($_->filename)->basename, @injected ],
-    [ 'Any-Moose-0.08.tar.gz', 'File-Which-1.09.tar.gz' ],
+    [ 'Any-Moose-0.01.tar.gz', 'File-Which-0.01.tar.gz' ],
     'injected package names',
 );
 
