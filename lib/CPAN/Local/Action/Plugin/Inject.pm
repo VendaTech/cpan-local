@@ -8,7 +8,6 @@ use File::Path;
 use File::Copy;
 use Dist::Metadata;
 use CPAN::Local::Distribution;
-use CPAN::Checksums;
 
 use Moose;
 extends 'CPAN::Local::Action::Plugin';
@@ -44,8 +43,6 @@ sub inject
                 authorid => $distro->authorid,
                 path     => $distro->path,
             );
-
-            CPAN::Checksums::updatedir( $authordir );
         }
         else
         {
