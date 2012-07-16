@@ -1,7 +1,5 @@
 CPAN::Local
 ===========
 
-1. Rewrite CPAN::Local tests to use fake distros
-2. Make checksums a separtate module
-3. Tests for mirror plugin
+1. Mirror plugin in separate distribution
 4. Make CPAN::Local::Distribution composable with roles
