@@ -7,7 +7,7 @@ use File::Temp qw(tempdir);
 use Path::Class qw(file);
 use File::Copy;
 use Dist::Metadata;
-use CPAN::Local::Distribution;
+use Moose::Meta::Class;
 use Test::Most;
 
 ### SETUP ###
@@ -47,13 +47,21 @@ foreach my $spec ( @distro_specs ) {
 
 ### LOAD ###
 
+my $metaclass = Moose::Meta::Class->create_anon_class(
+    superclasses => ['CPAN::Local::Distribution'],
+    cache        => 1,
+);
+
 my $repo_root = tempdir;
 my $repo_uri  = 'http://www.example.com/';
 
-my $plugin = CPAN::Local::Action::Plugin::Indices->new(
+my %args = (
     uri  => $repo_uri,
     root => $repo_root,
+    distribution_class => $metaclass->name,
 );
+
+my $plugin = CPAN::Local::Action::Plugin::Indices->new(%args);
 
 isa_ok( $plugin, 'CPAN::Local::Action::Plugin::Indices' );
 
@@ -137,9 +145,8 @@ $index = CPAN::Index::API->new_from_path(
 ok ( ! $index->find_package_by_name('common::sense'), 'without auto_provides' );
 
 my $new_plugin = CPAN::Local::Action::Plugin::Indices->new(
-    uri           => $repo_uri,
-    root          => $repo_root,
     auto_provides => 1,
+    %args,
 );
 
 $new_plugin->index( CPAN::Local::Distribution->new(
@@ -151,6 +158,7 @@ $index = CPAN::Index::API->new_from_path(
     repo_path => $repo_root,
     repo_uri  => $repo_uri,
 );
+
 
 ok ( $index->find_package_by_name('common::sense'), 'with auto_provides' );
 

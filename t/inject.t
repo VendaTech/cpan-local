@@ -5,16 +5,22 @@ use CPAN::Local::Action::Plugin::Inject;
 use Module::Faker::Dist;
 use File::Temp qw(tempdir);
 use Path::Class qw(file);
-use CPAN::Local::Distribution;
+use Moose::Meta::Class;
 
 use Test::Most;
 
 my $repo_root = tempdir;
 my $repo_uri  = 'http://www.example.com/';
 
+my $metaclass = Moose::Meta::Class->create_anon_class(
+    superclasses => ['CPAN::Local::Distribution'],
+    cache        => 1,
+);
+
 my $plugin = CPAN::Local::Action::Plugin::Inject->new(
     uri  => $repo_uri,
     root => $repo_root,
+    distribution_class => $metaclass->name,
 );
 
 isa_ok( $plugin, 'CPAN::Local::Action::Plugin::Inject' );

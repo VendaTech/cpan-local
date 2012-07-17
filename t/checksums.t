@@ -6,6 +6,7 @@ use Path::Class qw(dir file);
 use File::Temp  qw(tempdir);
 use CPAN::Local::Distribution;
 use Test::Most;
+use Moose::Meta::Class;
 
 ### SETUP ###
 
@@ -38,10 +39,16 @@ foreach my $spec ( @fake_distro_specs ) {
     );
 }
 
+my $metaclass = Moose::Meta::Class->create_anon_class(
+    superclasses => ['CPAN::Local::Distribution'],
+    cache        => 1,
+);
+
 ### TEST ###
 
 my $plugin = CPAN::Local::Action::Plugin::Checksums->new(
     root => $root,
+    distribution_class => $metaclass->name,
 );
 
 isa_ok( $plugin, 'CPAN::Local::Action::Plugin::Checksums' );

@@ -8,6 +8,7 @@ use Module::Faker::Dist;
 use CPAN::Local::Action::Plugin::DistroList;
 use File::Temp qw(tempdir tempfile);
 use Path::Class qw(file dir);
+use Moose::Meta::Class;
 
 ### setup
 
@@ -64,12 +65,19 @@ close $fh or die $!;
 
 my $plugin = 'CPAN::Local::Action::Plugin::DistroList';
 
+my $metaclass = Moose::Meta::Class->create_anon_class(
+    superclasses => ['CPAN::Local::Distribution'],
+    cache        => 1,
+);
+
+my %args = ( root => '.', distribution_class => $metaclass->name );
+
 ### add distros from mirror
 
 _test_distrolist 'from mirror' => $plugin->new(
     uris  => \@fake_distro_uris,
     cache => tempdir(),
-    root  => '.',
+    %args,
 );
 
 ### add local distros
@@ -77,8 +85,8 @@ _test_distrolist 'from mirror' => $plugin->new(
 _test_distrolist 'from path' => $plugin->new(
     uris     => [ map { $_->make_archive } @fake_distros ],
     local    => 1,
-    root     => '.',
     authorid => 'FOOBAR',
+    %args,
 );
 
 ### use configuration file
@@ -86,9 +94,9 @@ _test_distrolist 'from path' => $plugin->new(
 _test_distrolist 'using configuration file' => $plugin->new(
     list     => $configfile,
     local    => 1,
-    root     => '.',
     authorid => 'FOOBAR',
     prefix   => "$cachedir/",
+    %args,
 );
 
 done_testing;

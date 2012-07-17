@@ -7,7 +7,6 @@ use Path::Class qw(file dir);
 use File::Path;
 use File::Copy;
 use Dist::Metadata;
-use CPAN::Local::Distribution;
 
 use Moose;
 extends 'CPAN::Local::Action::Plugin';
@@ -38,7 +37,7 @@ sub inject
 
         if ( File::Copy::copy( $distro->filename, $new_filepath ) )
         {
-            push @injected, CPAN::Local::Distribution->new(
+            push @injected, $self->create_distribution(
                 filename => $new_filepath,
                 authorid => $distro->authorid,
                 path     => $distro->path,

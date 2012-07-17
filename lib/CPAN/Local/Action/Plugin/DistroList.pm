@@ -11,7 +11,6 @@ use URI;
 use Try::Tiny;
 use LWP::Simple;
 use CPAN::DistnameInfo;
-use CPAN::Local::Distribution;
 
 use Moose;
 extends 'CPAN::Local::Action::Plugin';
@@ -99,9 +98,8 @@ sub gather
             : ( uri => $uri, cache => $self->cache );
 
         $args{authorid} = $self->authorid if $self->has_authorid;
-
         my $distro = 
-            try   { $self->distribution_class->new(%args) }
+            try   { $self->create_distribution(%args) }
             catch { $self->log($_) };
         
         push @distros, $distro if $distro;

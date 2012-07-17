@@ -1,5 +1,7 @@
 CPAN::Local
 ===========
 
-1. Mirror plugin in separate distribution
-4. Make CPAN::Local::Distribution composable with roles
+* Split CPAN::Local::Distribution into with roles
+* Move distrolist into separate distribution
+* Cleanup CPAN::Index::API
+* Documentation and release

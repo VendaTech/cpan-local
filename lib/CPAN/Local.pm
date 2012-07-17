@@ -9,6 +9,7 @@ use File::Copy;
 use CPAN::Local::MVP::Assembler;
 use Config::MVP::Reader::Finder;
 use Log::Dispatchouli;
+use Moose::Meta::Class;
 
 use Moose;
 use namespace::clean -except => 'meta';
@@ -56,6 +57,27 @@ has 'logger' =>
 	lazy_build => 1,
 );
 
+has 'distribution_base_class' =>
+(
+    is      => 'ro',
+    isa     => 'Str',
+    default => 'CPAN::Local::Distribution',
+);
+
+has 'distribution_roles' =>
+(
+    is      => 'ro',
+    isa     => 'ArrayRef[Str]',
+    default => sub { [] },
+);
+
+has 'distribution_class' =>
+(
+    is         => 'ro',
+    isa        => 'Str',
+    lazy_build => 1,
+);
+
 sub plugins_with 
 {
     my ($self, $role) = @_;
@@ -65,6 +87,17 @@ sub plugins_with
     
     my @plugins = grep { $_->does($role) } values %{ $self->plugins };
     return @plugins;
+}
+
+sub _build_distribution_class
+{
+    my $self = shift;
+
+    return Moose::Meta::Class->create_anon_class(
+        superclasses => [$self->distribution_base_class],
+        roles        => $self->distribution_roles,
+        cache        => 1,
+    )->name;
 }
 
 sub _build_logger
@@ -107,6 +140,7 @@ sub _build_plugins
 			logger => $self->logger->proxy({ 
 				proxy_prefix => "[" . $section->name . "] "
 			),
+            distribution_class => $self->distribution_class,
         );
         $plugins{$section->name} = $plugin;
     }
