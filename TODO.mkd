@@ -1,7 +1,8 @@
 CPAN::Local
 ===========
 
-* Split CPAN::Local::Distribution into with roles
+* Implement `requires_distribution_roles`
+* Change filename to file
 * Move distrolist into separate distribution
 * Cleanup CPAN::Index::API
 * Documentation and release

@@ -29,9 +29,11 @@ $distro{filename} = CPAN::Local::Distribution->new(
 is ( $distro{filename}->authorid, 'ADAMK', 'calculate authorid' );
 
 dies_ok ( 
-    sub { $distro{filename_no_author} = CPAN::Local::Distribution->new(
-        filename => '/foo/bar/File-Which-1.09.tar.gz',
-    ) },
+    sub { 
+        my $distro_filename_no_author = CPAN::Local::Distribution->new(
+            filename => '/foo/bar/File-Which-1.09.tar.gz',
+        );
+    },
     'fail to calculate authorid',
 );
 
