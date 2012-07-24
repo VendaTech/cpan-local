@@ -3,7 +3,6 @@ package CPAN::Local::Action::Plugin::DistroList;
 use strict;
 use warnings;
 
-use CPAN::Index::API;
 use File::Path qw(make_path);
 use Path::Class qw(file dir);
 use File::Temp;

@@ -69,10 +69,7 @@ isa_ok( $plugin, 'CPAN::Local::Action::Plugin::Indices' );
 
 $plugin->initialise;
 
-my $index = CPAN::Index::API->new_from_path(
-    repo_path => $repo_root,
-    repo_uri  => $repo_uri,
-);
+my $index = CPAN::Index::API->new_from_repo_path($repo_root);
 
 isa_ok( $index, 'CPAN::Index::API' );
 
@@ -98,10 +95,7 @@ my %distros = (
 
 $plugin->index( values %distros );
 
-$index = CPAN::Index::API->new_from_path(
-    repo_path => $repo_root,
-    repo_uri  => $repo_uri,
-);
+$index = CPAN::Index::API->new_from_repo_path($repo_root);
 
 # updating authors does not work yet
 # is ( $index->mail_rc->author_count, 2, 'update authors' );
@@ -113,7 +107,7 @@ is_deeply (
 );
 
 is ( 
-    $index->find_package_by_name('Any::Moose')->version, '0.08', 
+    $index->package('Any::Moose')->version, '0.08', 
     'injected package version',
 );
 
@@ -122,13 +116,10 @@ $plugin->index( CPAN::Local::Distribution->new(
     filename => file($distro_dir, 'Any-Moose-0.09.tar.gz')->stringify,
 ) );
 
-$index = CPAN::Index::API->new_from_path(
-    repo_path => $repo_root,
-    repo_uri  => $repo_uri,
-);
+$index = CPAN::Index::API->new_from_repo_path($repo_root);
 
 is ( 
-    $index->find_package_by_name('Any::Moose')->version, '0.09', 
+    $index->package('Any::Moose')->version, '0.09', 
     'updated package version',
 );
 
@@ -137,12 +128,9 @@ $plugin->index( CPAN::Local::Distribution->new(
     filename => file($distro_dir, 'common-sense-3.2.tar.gz')->stringify,
 ) );
 
-$index = CPAN::Index::API->new_from_path(
-    repo_path => $repo_root,
-    repo_uri  => $repo_uri,
-);
+$index = CPAN::Index::API->new_from_repo_path($repo_root);
 
-ok ( ! $index->find_package_by_name('common::sense'), 'without auto_provides' );
+ok ( ! $index->package('common::sense'), 'without auto_provides' );
 
 my $new_plugin = CPAN::Local::Action::Plugin::Indices->new(
     auto_provides => 1,
@@ -154,12 +142,8 @@ $new_plugin->index( CPAN::Local::Distribution->new(
     filename => file($distro_dir, 'common-sense-3.2.tar.gz')->stringify,
 ) );
 
-$index = CPAN::Index::API->new_from_path(
-    repo_path => $repo_root,
-    repo_uri  => $repo_uri,
-);
+$index = CPAN::Index::API->new_from_repo_path($repo_root);
 
-
-ok ( $index->find_package_by_name('common::sense'), 'with auto_provides' );
+ok ( $index->package('common::sense'), 'with auto_provides' );
 
 done_testing;

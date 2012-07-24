@@ -5,11 +5,10 @@ use warnings;
 
 use CPAN::Index::API;
 use CPAN::Index::API::Object::Package;
+use CPAN::Index::API::File::PackagesDetails;
 use File::Path;
-use CPAN::Local::Util;
 use CPAN::DistnameInfo;
 use Path::Class qw(file dir);
-
 use Moose;
 extends 'CPAN::Local::Action::Plugin';
 with 'CPAN::Local::Action::Role::Initialise'; 
@@ -54,10 +53,8 @@ sub index
 {
 	my ($self, @distros) = @_;
 
-	my $index = CPAN::Index::API->new_from_path(
-		repo_path => $self->root,
-		repo_uri  => $self->uri,
-	);
+	my $packages_details = 
+        CPAN::Index::API::File::PackagesDetails->read_from_repo_path($self->root);
 
 	foreach my $distro ( @distros ) 
 	{
@@ -78,7 +75,7 @@ sub index
 		{
             my $version = $specs->{version};
 
-			if ( my $existing_package = $index->find_package_by_name($package) )
+			if ( my $existing_package = $packages_details->package($package) )
 			{
                 $existing_package->version($version) 
                 	if $version > $existing_package->version;
@@ -90,12 +87,12 @@ sub index
 					version      => $version,
 					distribution => $distro->path,
 				);
-				$index->add_package($new_package);
+				$packages_details->add_package($new_package);
 			}
 		}
 	}
 
-	$index->write_all_files;
+	$packages_details->write_to_tarball;
 }
 
 __PACKAGE__->meta->make_immutable;
