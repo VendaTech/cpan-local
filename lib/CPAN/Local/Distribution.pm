@@ -9,7 +9,7 @@ use URI;
 use Moose;
 use namespace::clean -except => 'meta';
 
-with 'CPAN::Local::Distribution::Role::MetaData';
+with 'CPAN::Local::Distribution::Role::Metadata';
 with 'CPAN::Local::Distribution::Role::NameInfo';
 with 'CPAN::Local::Distribution::Role::FromURI';
 

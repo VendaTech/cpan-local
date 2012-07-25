@@ -1,4 +1,4 @@
-package CPAN::Local::Distribution::Role::MetaData;
+package CPAN::Local::Distribution::Role::Metadata;
 
 use strict;
 use warnings;

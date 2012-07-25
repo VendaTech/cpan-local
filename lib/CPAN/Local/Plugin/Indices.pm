@@ -95,4 +95,6 @@ sub index
 	$packages_details->write_to_tarball;
 }
 
+sub requires_distribution_roles { qw(Metadata) }
+
 __PACKAGE__->meta->make_immutable;

@@ -5,6 +5,8 @@ use warnings;
 
 use Path::Class qw(file dir);
 use File::Path  qw(make_path);
+use List::MoreUtils qw(uniq apply);
+use Class::Load qw(load_class);
 use File::Copy;
 use CPAN::Local::MVP::Assembler;
 use Config::MVP::Reader::Finder;
@@ -64,20 +66,6 @@ has 'distribution_base_class' =>
     default => 'CPAN::Local::Distribution',
 );
 
-has 'distribution_roles' =>
-(
-    is      => 'ro',
-    isa     => 'ArrayRef[Str]',
-    default => sub { [] },
-);
-
-has 'distribution_class' =>
-(
-    is         => 'ro',
-    isa        => 'Str',
-    lazy_build => 1,
-);
-
 sub plugins_with 
 {
     my ($self, $role) = @_;
@@ -89,26 +77,14 @@ sub plugins_with
     return @plugins;
 }
 
-sub _build_distribution_class
-{
-    my $self = shift;
-
-    return Moose::Meta::Class->create_anon_class(
-        superclasses => [$self->distribution_base_class],
-        roles        => $self->distribution_roles,
-        cache        => 1,
-    )->name;
-}
-
 sub _build_logger
 {
     return Log::Dispatchouli->new({
-        ident     => 'CPAN::Local',
-        to_stdout => 1,
-        log_pid   => 0,
+        ident       => 'CPAN::Local',
+        to_stdout   => 1,
+        log_pid     => 0,
         quiet_fatal => 'stdout',
     });
-  }
 }
 
 sub _build_config 
@@ -130,7 +106,26 @@ sub _build_plugins
 {
     my $self = shift;
 
-    my %plugins;
+    my ( %sections, %plugins, @disribution_roles );
+
+    my $distribution_class = $self->distribution_base_class;
+
+    my $role_prefix = "CPAN::Local::Distribution::Role::";
+
+    my @distribution_roles = 
+        map      { "$role_prefix$_" } 
+        uniq map { $_->package->requires_distribution_roles } 
+        apply    { load_class $_->package }
+            $self->config->sections;
+
+    if ( @distribution_roles )
+    {
+        $distribution_class = Moose::Meta::Class->create_anon_class(
+            superclasses => [$self->distribution_base_class],
+            cache => 1,
+            @distribution_roles ? ( roles => \@distribution_roles ) : (),
+        )->name;
+    }
 
     for my $section ($self->config->sections) 
     {
@@ -139,8 +134,8 @@ sub _build_plugins
 			root   => $self->root,
 			logger => $self->logger->proxy({ 
 				proxy_prefix => "[" . $section->name . "] "
-			),
-            distribution_class => $self->distribution_class,
+            }),
+            distribution_class => $distribution_class,
         );
         $plugins{$section->name} = $plugin;
     }
