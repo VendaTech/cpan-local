@@ -1,4 +1,4 @@
-package CPAN::Local::Action::Plugin::Inject;
+package CPAN::Local::Plugin::Inject;
 
 use strict;
 use warnings;
@@ -6,8 +6,8 @@ use CPAN::Inject;
 use Path::Class qw(file);
 use Try::Tiny qw(try catch);
 use Moose;
-extends 'CPAN::Local::Action::Plugin';
-with 'CPAN::Local::Action::Role::Inject';
+extends 'CPAN::Local::Plugin';
+with 'CPAN::Local::Role::Inject';
 use namespace::clean -except => 'meta';
 
 sub inject

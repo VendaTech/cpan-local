@@ -1,4 +1,4 @@
-package CPAN::Local::Action::Role::Clean;
+package CPAN::Local::Role::Verify;
 
 use strict;
 use warnings;
@@ -6,7 +6,6 @@ use warnings;
 use Moose::Role;
 use namespace::clean -except => 'meta';
 
-requires 'clean';
+requires 'verify';
 
 1;
-

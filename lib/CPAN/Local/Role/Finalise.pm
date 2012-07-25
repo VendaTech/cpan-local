@@ -1,4 +1,4 @@
-package CPAN::Local::Action::Role::Initialise;
+package CPAN::Local::Role::Finalise;
 
 use strict;
 use warnings;
@@ -6,6 +6,6 @@ use warnings;
 use Moose::Role;
 use namespace::clean -except => 'meta';
 
-requires 'initialise';
+requires 'finalise';
 
 1;

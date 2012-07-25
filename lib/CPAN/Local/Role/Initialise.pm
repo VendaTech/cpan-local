@@ -1,4 +1,4 @@
-package CPAN::Local::Action::Role::Index;
+package CPAN::Local::Role::Initialise;
 
 use strict;
 use warnings;
@@ -6,6 +6,6 @@ use warnings;
 use Moose::Role;
 use namespace::clean -except => 'meta';
 
-requires 'index';
+requires 'initialise';
 
 1;

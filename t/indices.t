@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use CPAN::Index::API;
-use CPAN::Local::Action::Plugin::Indices;
+use CPAN::Local::Plugin::Indices;
 use Module::Faker::Dist;
 use File::Temp qw(tempdir);
 use Path::Class qw(file);
@@ -61,9 +61,9 @@ my %args = (
     distribution_class => $metaclass->name,
 );
 
-my $plugin = CPAN::Local::Action::Plugin::Indices->new(%args);
+my $plugin = CPAN::Local::Plugin::Indices->new(%args);
 
-isa_ok( $plugin, 'CPAN::Local::Action::Plugin::Indices' );
+isa_ok( $plugin, 'CPAN::Local::Plugin::Indices' );
 
 ### INITIALISE ###
 
@@ -132,7 +132,7 @@ $index = CPAN::Index::API->new_from_repo_path($repo_root);
 
 ok ( ! $index->package('common::sense'), 'without auto_provides' );
 
-my $new_plugin = CPAN::Local::Action::Plugin::Indices->new(
+my $new_plugin = CPAN::Local::Plugin::Indices->new(
     auto_provides => 1,
     %args,
 );

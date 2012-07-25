@@ -1,4 +1,4 @@
-package CPAN::Local::Action::Plugin;
+package CPAN::Local::Plugin;
 
 use strict;
 use warnings;

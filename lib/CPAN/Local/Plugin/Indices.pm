@@ -1,4 +1,4 @@
-package CPAN::Local::Action::Plugin::Indices;
+package CPAN::Local::Plugin::Indices;
 
 use strict;
 use warnings;
@@ -10,9 +10,9 @@ use File::Path;
 use CPAN::DistnameInfo;
 use Path::Class qw(file dir);
 use Moose;
-extends 'CPAN::Local::Action::Plugin';
-with 'CPAN::Local::Action::Role::Initialise'; 
-with 'CPAN::Local::Action::Role::Index';
+extends 'CPAN::Local::Plugin';
+with 'CPAN::Local::Role::Initialise'; 
+with 'CPAN::Local::Role::Index';
 use namespace::clean -except => 'meta';
 
 has 'uri' => 

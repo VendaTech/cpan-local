@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use CPAN::Local::Action::Plugin::Inject;
+use CPAN::Local::Plugin::Inject;
 use Module::Faker::Dist;
 use File::Temp qw(tempdir);
 use Path::Class qw(file);
@@ -17,13 +17,13 @@ my $metaclass = Moose::Meta::Class->create_anon_class(
     cache        => 1,
 );
 
-my $plugin = CPAN::Local::Action::Plugin::Inject->new(
+my $plugin = CPAN::Local::Plugin::Inject->new(
     uri  => $repo_uri,
     root => $repo_root,
     distribution_class => $metaclass->name,
 );
 
-isa_ok( $plugin, 'CPAN::Local::Action::Plugin::Inject' );
+isa_ok( $plugin, 'CPAN::Local::Plugin::Inject' );
 
 my %distros = (
     file_which => CPAN::Local::Distribution->new(

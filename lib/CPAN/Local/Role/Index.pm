@@ -1,4 +1,4 @@
-package CPAN::Local::Action::Role::Gather;
+package CPAN::Local::Role::Index;
 
 use strict;
 use warnings;
@@ -6,6 +6,6 @@ use warnings;
 use Moose::Role;
 use namespace::clean -except => 'meta';
 
-requires 'gather';
+requires 'index';
 
 1;

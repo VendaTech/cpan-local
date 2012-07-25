@@ -32,7 +32,7 @@ has 'root_namespace' =>
     is       => 'ro',
     isa      => 'Str',
     required => 1,
-    default  => 'CPAN::Local::Action',
+    default  => 'CPAN::Local',
 );
 
 has 'plugins' => (

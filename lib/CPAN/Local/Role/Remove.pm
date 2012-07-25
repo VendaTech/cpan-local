@@ -1,4 +1,4 @@
-package CPAN::Local::Action::Role::Prune;
+package CPAN::Local::Role::Remove;
 
 use strict;
 use warnings;
@@ -6,6 +6,6 @@ use warnings;
 use Moose::Role;
 use namespace::clean -except => 'meta';
 
-requires 'prune';
+requires 'remove';
 
 1;

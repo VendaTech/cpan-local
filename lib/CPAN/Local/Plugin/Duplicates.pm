@@ -1,11 +1,11 @@
-package CPAN::Local::Action::Plugin::Duplicates;
+package CPAN::Local::Plugin::Duplicates;
 
 use strict;
 use warnings;
 
 use Moose;
-extends 'CPAN::Local::Action::Plugin';
-with 'CPAN::Local::Action::Role::Clean';
+extends 'CPAN::Local::Plugin';
+with 'CPAN::Local::Role::Clean';
 use namespace::clean -except => 'meta';
 
 sub clean

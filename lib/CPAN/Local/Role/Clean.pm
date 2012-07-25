@@ -1,4 +1,4 @@
-package CPAN::Local::Action::Role::Remove;
+package CPAN::Local::Role::Clean;
 
 use strict;
 use warnings;
@@ -6,6 +6,7 @@ use warnings;
 use Moose::Role;
 use namespace::clean -except => 'meta';
 
-requires 'remove';
+requires 'clean';
 
 1;
+
