@@ -9,17 +9,17 @@ use CPAN::Index::API::File::PackagesDetails;
 use File::Path;
 use CPAN::DistnameInfo;
 use Path::Class qw(file dir);
+use URI::file;
 use Moose;
 extends 'CPAN::Local::Plugin';
 with 'CPAN::Local::Role::Initialise'; 
 with 'CPAN::Local::Role::Index';
 use namespace::clean -except => 'meta';
 
-has 'uri' => 
+has 'repo_uri' => 
 ( 
-	is       => 'ro', 
-	isa      => 'Str', 
-	required => 1 
+	is  => 'ro', 
+	isa => 'Str', 
 );
 
 has 'root' =>
@@ -40,11 +40,11 @@ sub initialise
     my $self = shift;
     
     File::Path::make_path( dir($self->root)->stringify );
-
-    my $index = CPAN::Index::API->new(
-        repo_path => $self->root,
-        repo_uri  => $self->uri,
-    );
+    
+    my %args = ( repo_path => $self->root );
+    $args{repo_uri} = $self->repo_uri if $self->repo_uri;
+    
+    my $index = CPAN::Index::API->new(%args);
     
     $index->write_all_files;
 }
