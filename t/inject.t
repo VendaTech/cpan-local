@@ -62,4 +62,6 @@ my $existing = grep { -e } map { file( $repo_root, $_->path ) } @injected;
 
 is ( $existing, 2, 'injected tarballs exist' );
 
+ok ( -e file($repo_root, 'authors/id/S/SA/SARTAK/CHECKSUMS'), "Checksums file created" );
+
 done_testing;

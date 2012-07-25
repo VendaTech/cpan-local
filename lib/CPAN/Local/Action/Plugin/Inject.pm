@@ -2,23 +2,13 @@ package CPAN::Local::Action::Plugin::Inject;
 
 use strict;
 use warnings;
-
-use Path::Class qw(file dir);
-use File::Path;
-use File::Copy;
-use Dist::Metadata;
-
+use CPAN::Inject;
+use Path::Class qw(file);
+use Try::Tiny qw(try catch);
 use Moose;
 extends 'CPAN::Local::Action::Plugin';
 with 'CPAN::Local::Action::Role::Inject';
 use namespace::clean -except => 'meta';
-
-has config => 
-(
-	is        => 'ro',
-	isa       => 'Str',
-	predicate => 'has_config',
-);
 
 sub inject
 {
@@ -28,26 +18,19 @@ sub inject
 
     foreach my $distro (@distros)
     {
-        ### CREATE AUTHOR DIRECTORY ###
-        my $authordir = file( $self->root, $distro->path )->dir;
-        $authordir->mkpath;
+        my $injector = CPAN::Inject->new(
+            sources => $self->root,
+            author  => $distro->authorid,
+        );
 
-        ### COPY DISTRIBUTION ###
-        my $new_filepath = file( $authordir, file( $distro->filename )->basename )->stringify;
+        next unless try { $injector->add( file => $distro->filename ) }
+                  catch { $self->log($_) };
 
-        if ( File::Copy::copy( $distro->filename, $new_filepath ) )
-        {
-            push @injected, $self->create_distribution(
-                filename => $new_filepath,
-                authorid => $distro->authorid,
-                path     => $distro->path,
-            );
-        }
-        else
-        {
-			$self->log($!);
-			next;
-        }
+        push @injected, $self->create_distribution(
+            filename => file( $self->root, $distro->path )->stringify,
+            authorid => $distro->authorid,
+            path     => $distro->path,
+        );
     }
 
     return @injected;
