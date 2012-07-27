@@ -9,10 +9,6 @@ use URI;
 use Moose;
 use namespace::clean -except => 'meta';
 
-with 'CPAN::Local::Distribution::Role::Metadata';
-with 'CPAN::Local::Distribution::Role::NameInfo';
-with 'CPAN::Local::Distribution::Role::FromURI';
-
 has filename => ( is => 'ro', isa => 'Str', required => 1 );
 has authorid => ( is => 'ro', isa => 'Str', required => 1 );
 has path     => ( is => 'ro', isa => 'Str', required => 1, lazy_build => 1 );

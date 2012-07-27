@@ -38,14 +38,17 @@ has 'auto_provides' =>
 sub initialise
 {
     my $self = shift;
-    
+
     File::Path::make_path( dir($self->root)->stringify );
     
-    my %args = ( repo_path => $self->root );
+    my %args = ( 
+        repo_path => $self->root,
+        files => [qw(PackagesDetails MailRc ModList)],
+    );
     $args{repo_uri} = $self->repo_uri if $self->repo_uri;
     
     my $index = CPAN::Index::API->new(%args);
-    
+
     $index->write_all_files;
 }
 

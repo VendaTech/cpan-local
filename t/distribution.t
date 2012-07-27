@@ -8,9 +8,22 @@ use Path::Class qw(file);
 use File::Temp  qw(tempdir);
 use Test::Most;
 
+my @distribution_roles = qw(
+    CPAN::Local::Distribution::Role::Metadata
+    CPAN::Local::Distribution::Role::NameInfo
+    CPAN::Local::Distribution::Role::FromURI
+);
+
+my $distribution_class = Moose::Meta::Class->create_anon_class(
+    superclasses => ['CPAN::Local::Distribution'],
+    roles        => \@distribution_roles,
+    cache        => 1,
+)->name;
+
+
 my %distro;
 
-$distro{authorid_and_filename} = CPAN::Local::Distribution->new(
+$distro{authorid_and_filename} = $distribution_class->new(
     authorid => 'ADAMK',
     filename => 'File-Which-1.09.tar.gz',
 );
@@ -22,7 +35,7 @@ is ( $distro{authorid_and_filename}->path,
      'authors/id/A/AD/ADAMK/File-Which-1.09.tar.gz', 
      'calculate distro path' );
 
-$distro{filename} = CPAN::Local::Distribution->new(
+$distro{filename} = $distribution_class->new(
     filename => '/foo/bar/authors/id/A/AD/ADAMK/File-Which-1.09.tar.gz',
 );
 
@@ -30,7 +43,7 @@ is ( $distro{filename}->authorid, 'ADAMK', 'calculate authorid' );
 
 dies_ok ( 
     sub { 
-        my $distro_filename_no_author = CPAN::Local::Distribution->new(
+        my $distro_filename_no_author = $distribution_class->new(
             filename => '/foo/bar/File-Which-1.09.tar.gz',
         );
     },
@@ -39,7 +52,7 @@ dies_ok (
 
 my $fake_distro = Module::Faker::Dist->new( name => 'Foo-Bar' );
 
-$distro{existing_filename} = CPAN::Local::Distribution->new(
+$distro{existing_filename} = $distribution_class->new(
     authorid => 'ADAMK',
     filename => $fake_distro->make_archive,
 );
@@ -57,7 +70,7 @@ my $distro_uri = $fakepan->endpoint;
 $distro_uri->path($distro_path);
 $distro_uri = $distro_uri->as_string;
 
-$distro{uri} = CPAN::Local::Distribution->new( uri => $distro_uri );
+$distro{uri} = $distribution_class->new( uri => $distro_uri );
 
 isa_ok ( $distro{uri}, 'CPAN::Local::Distribution' );
 
@@ -67,14 +80,14 @@ is ( $distro{uri}->path, $distro_path, 'calculate distro path from uri' );
 
 my $tempdir = tempdir( CLEANUP => 1 );
 
-$distro{uri_and_cache} = CPAN::Local::Distribution->new(
+$distro{uri_and_cache} = $distribution_class->new(
     uri   => $distro_uri,
     cache => $tempdir,
 );
 
 ok( -e file( $tempdir, $distro_path ), 'fetch from uri into cache' );
 
-$distro{uri_and_author} = CPAN::Local::Distribution->new(
+$distro{uri_and_author} = $distribution_class->new(
     uri      => $distro_uri,
     cache    => $tempdir,
     authorid => 'FOOBAR',

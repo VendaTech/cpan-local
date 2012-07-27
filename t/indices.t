@@ -5,6 +5,7 @@ use CPAN::Local::Plugin::Indices;
 use Module::Faker::Dist;
 use File::Temp qw(tempdir);
 use Path::Class qw(file);
+use URI::file;
 use File::Copy;
 use Dist::Metadata;
 use Moose::Meta::Class;
@@ -47,10 +48,15 @@ foreach my $spec ( @distro_specs ) {
 
 ### LOAD ###
 
-my $metaclass = Moose::Meta::Class->create_anon_class(
+my @distribution_roles = 
+    map { "CPAN::Local::Distribution::Role::$_" }
+    CPAN::Local::Plugin::Indices->requires_distribution_roles;
+
+my $distribution_class = Moose::Meta::Class->create_anon_class(
     superclasses => ['CPAN::Local::Distribution'],
+    roles        => \@distribution_roles,
     cache        => 1,
-);
+)->name;
 
 my $repo_root = tempdir;
 my $repo_uri  = 'http://www.example.com/';
@@ -58,7 +64,7 @@ my $repo_uri  = 'http://www.example.com/';
 my %args = (
     uri  => $repo_uri,
     root => $repo_root,
-    distribution_class => $metaclass->name,
+    distribution_class => $distribution_class,
 );
 
 my $plugin = CPAN::Local::Plugin::Indices->new(%args);
@@ -69,25 +75,31 @@ isa_ok( $plugin, 'CPAN::Local::Plugin::Indices' );
 
 $plugin->initialise;
 
-my $index = CPAN::Index::API->new_from_repo_path($repo_root);
+my $index = CPAN::Index::API->new_from_repo_path(
+    repo_path => $repo_root,
+    files => [qw(PackagesDetails ModList MailRc)],
+);
 
 isa_ok( $index, 'CPAN::Index::API' );
 
-is ( $index->mail_rc->author_count, 0, '01mailrc.txt lines' );
-is ( $index->packages_details->package_count, 0, '02packages.details.txt.gz lines' );
-is ( $index->packages_details->uri, 
-     'http://www.example.com/modules/02packages.details.txt', 
-     '02packages.details.txt.gz url' );
-is ( $index->mod_list->module_count, 0, '03modlist.data.gz lines' );
+is ( $index->file('MailRc')->author_count, 0, '01mailrc.txt lines' );
+is ( $index->file('PackagesDetails')->package_count, 0, '02packages.details.txt.gz lines' );
+is ( $index->file('ModList')->module_count, 0, '03modlist.data.gz lines' );
+
+my $packages_details_uri = URI::file->new(
+    file($repo_root, 'modules', '02packages.details.txt')->stringify
+)->as_string;
+
+is ( $index->file('PackagesDetails')->uri, $packages_details_uri, '02packages.details uri');
 
 ### INDEX ###
 
 my %distros = (
-    file_which => CPAN::Local::Distribution->new(
+    file_which => $distribution_class->new(
         authorid => 'ADAMK',
         filename => file($distro_dir, 'File-Which-1.09.tar.gz')->stringify,
     ),
-    any_moose => CPAN::Local::Distribution->new(
+    any_moose => $distribution_class->new(
         authorid => 'SARTAK',
         filename => file($distro_dir, 'Any-Moose-0.08.tar.gz')->stringify,
     ),
@@ -95,7 +107,7 @@ my %distros = (
 
 $plugin->index( values %distros );
 
-$index = CPAN::Index::API->new_from_repo_path($repo_root);
+$index = CPAN::Index::API::File::PackagesDetails->read_from_repo_path($repo_root);
 
 # updating authors does not work yet
 # is ( $index->mail_rc->author_count, 2, 'update authors' );
@@ -111,24 +123,24 @@ is (
     'injected package version',
 );
 
-$plugin->index( CPAN::Local::Distribution->new(
+$plugin->index( $distribution_class->new(
     authorid => 'SARTAK',
     filename => file($distro_dir, 'Any-Moose-0.09.tar.gz')->stringify,
 ) );
 
-$index = CPAN::Index::API->new_from_repo_path($repo_root);
+$index = CPAN::Index::API::File::PackagesDetails->read_from_repo_path($repo_root);
 
 is ( 
     $index->package('Any::Moose')->version, '0.09', 
     'updated package version',
 );
 
-$plugin->index( CPAN::Local::Distribution->new(
+$plugin->index( $distribution_class->new(
     authorid => 'MLEHMANN',
     filename => file($distro_dir, 'common-sense-3.2.tar.gz')->stringify,
 ) );
 
-$index = CPAN::Index::API->new_from_repo_path($repo_root);
+$index = CPAN::Index::API::File::PackagesDetails->read_from_repo_path($repo_root);
 
 ok ( ! $index->package('common::sense'), 'without auto_provides' );
 
@@ -137,12 +149,12 @@ my $new_plugin = CPAN::Local::Plugin::Indices->new(
     %args,
 );
 
-$new_plugin->index( CPAN::Local::Distribution->new(
+$new_plugin->index( $distribution_class->new(
     authorid => 'MLEHMANN',
     filename => file($distro_dir, 'common-sense-3.2.tar.gz')->stringify,
 ) );
 
-$index = CPAN::Index::API->new_from_repo_path($repo_root);
+$index = CPAN::Index::API::File::PackagesDetails->read_from_repo_path($repo_root);
 
 ok ( $index->package('common::sense'), 'with auto_provides' );
 

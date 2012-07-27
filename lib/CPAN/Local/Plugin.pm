@@ -7,10 +7,6 @@ use Moose;
 with 'MooseX::Role::Loggable';
 use namespace::clean -except => 'meta';
 
-has '+logger' => (
-    isa => 'Log::Dispatchouli::Proxy',
-);
-
 has 'root' =>
 (
     is       => 'ro',
