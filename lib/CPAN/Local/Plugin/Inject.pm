@@ -37,3 +37,22 @@ sub inject
 }
 
 __PACKAGE__->meta->make_immutable;
+
+=pod
+
+=head1 IMPLEMENTS
+
+=over
+
+=item L<CPAN::Local::Plugin::Inject>
+
+=back
+
+=head1 METHODS
+
+=head2 inject
+
+Writes the distributition tarballs to the repository and updates the author
+checksums.
+
+=cut
