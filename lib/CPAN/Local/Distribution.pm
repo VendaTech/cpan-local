@@ -59,3 +59,28 @@ sub _build_path
 }
 
 __PACKAGE__->meta->make_immutable;
+
+=pod
+
+=head1 ATTRIBUTES
+
+=head2 filename
+
+The distribution filename, e.g. C<Foo-Bar-0.001.tar.gz>. Can (and often will)
+contain the full path to the distribution (e.g. 
+C</path/to/distros/Foo-Bar-0.001.tar.gz>), but the last part must always be a
+valid distribution filename. Required.
+
+=head2 authorid
+
+The id (a.k.a. CPAN id) of the distribution author. If not supplied, but 
+L</filename> is recognized as a full path that contains the authorid, it
+will be extracted from there.
+
+=head2 path
+
+Distribution path relative to the repository root, e.g. 
+C<authors/id/F/FO/FOOBAR/Foo-Bar-0.001.tar.gz>. Normally does not need to be
+supplied and will be calculated from the L</filename> and L</authorid>.
+
+=cut

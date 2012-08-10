@@ -26,3 +26,22 @@ sub clean
 }
 
 __PACKAGE__->meta->make_immutable;
+
+=pod
+
+=head1 IMPLEMENTS
+
+=over
+
+=item L<CPAN::Local::Plugin::Clean>
+
+=back
+
+=head1 METHODS
+
+=head2 clean
+
+De-dups the distribution list. A distribution is considered a duplicate if
+there is already another disribution that will write to the same path.
+
+=cut

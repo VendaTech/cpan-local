@@ -35,3 +35,24 @@ sub requires_distribution_roles
 }
 
 __PACKAGE__->meta->make_immutable;
+
+=pod
+
+=head1 ATTRIBUTES
+
+=head2 root
+
+Repository root.
+
+=head2 distribution_class
+
+Base class for distribution objects.
+
+=head1 METHODS
+
+=head2 requires_distribution_roles
+
+Empty class method. If overriden in a subclass should return a list of 
+distribution roles required by the respective plugin.
+
+=cut

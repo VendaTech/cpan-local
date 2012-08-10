@@ -12,6 +12,7 @@ use File::Path;
 use CPAN::DistnameInfo;
 use Path::Class qw(file dir);
 use URI::file;
+use Perl::Version;
 use Moose;
 extends 'CPAN::Local::Plugin';
 with 'CPAN::Local::Role::Initialise';
@@ -80,26 +81,63 @@ sub index
         {
             my $version = $specs->{version};
 
-            if ( my $existing_package = $packages_details->package($package) )
-            {
-                $existing_package->version($version)
-                    if $version > $existing_package->version;
-            }
-            else
-            {
-                my $new_package = CPAN::Index::API::Object::Package->new(
-                    name         => $package,
-                    version      => $version,
-                    distribution => $distro->path,
-                );
-                $packages_details->add_package($new_package);
-            }
-        }
-    }
+			if ( my $existing_package = $packages_details->package($package) )
+			{
+                $existing_package->version($version) 
+                	if Perl::Version->new($version) > 
+                       Perl::Version->new($existing_package->version);
+			}
+			else
+			{
+				my $new_package = CPAN::Index::API::Object::Package->new(
+					name         => $package,
+					version      => $version,
+					distribution => $distro->path,
+				);
+				$packages_details->add_package($new_package);
+			}
+		}
+	}
 
-    $packages_details->write_to_tarball;
+	$packages_details->write_to_tarball;
 }
 
 sub requires_distribution_roles { qw(Metadata) }
 
 __PACKAGE__->meta->make_immutable;
+
+
+=pod
+
+=head1 IMPLEMENTS
+
+=over 
+
+=item L<CPAN::Local::Role::Initialise>
+
+=item L<CPAN::Local::Role::Index>
+
+=back
+
+=head1 METHODS
+
+=head2 initialise
+
+Initializes the following index files:
+
+=over
+
+=item C<authors/03mailrc>
+
+=item C<authors/03mailrc>
+
+=item C<authors/03mailrc>
+
+=back
+
+head2 index
+
+Updates C<02packages_details.txt.gz> with information about the
+newly added distributions.
+
+=end
