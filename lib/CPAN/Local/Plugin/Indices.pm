@@ -1,5 +1,7 @@
 package CPAN::Local::Plugin::Indices;
 
+# ABSTRACT: Update index files
+
 use strict;
 use warnings;
 
@@ -12,14 +14,14 @@ use Path::Class qw(file dir);
 use URI::file;
 use Moose;
 extends 'CPAN::Local::Plugin';
-with 'CPAN::Local::Role::Initialise'; 
+with 'CPAN::Local::Role::Initialise';
 with 'CPAN::Local::Role::Index';
 use namespace::clean -except => 'meta';
 
-has 'repo_uri' => 
-( 
-	is  => 'ro', 
-	isa => 'Str', 
+has 'repo_uri' =>
+(
+    is  => 'ro',
+    isa => 'Str',
 );
 
 has 'root' =>
@@ -29,7 +31,7 @@ has 'root' =>
     required => 1,
 );
 
-has 'auto_provides' => 
+has 'auto_provides' =>
 (
     is  => 'ro',
     isa => 'Bool',
@@ -40,13 +42,13 @@ sub initialise
     my $self = shift;
 
     File::Path::make_path( dir($self->root)->stringify );
-    
-    my %args = ( 
+
+    my %args = (
         repo_path => $self->root,
         files => [qw(PackagesDetails MailRc ModList)],
     );
     $args{repo_uri} = $self->repo_uri if $self->repo_uri;
-    
+
     my $index = CPAN::Index::API->new(%args);
 
     $index->write_all_files;
@@ -54,48 +56,48 @@ sub initialise
 
 sub index
 {
-	my ($self, @distros) = @_;
+    my ($self, @distros) = @_;
 
-	my $packages_details = 
+    my $packages_details =
         CPAN::Index::API::File::PackagesDetails->read_from_repo_path($self->root);
 
-	foreach my $distro ( @distros ) 
-	{
-		my %provides = %{ $distro->metadata->provides };
-        
+    foreach my $distro ( @distros )
+    {
+        my %provides = %{ $distro->metadata->provides };
+
         if ( ! %provides and $self->auto_provides )
         {
             my $distnameinfo = CPAN::DistnameInfo->new(
                 file($distro->filename)->basename
             );
-            
+
             ( my $fake_package = $distnameinfo->dist ) =~ s/-/::/g;
-            
+
             $provides{$fake_package} = { version => $distnameinfo->version };
         }
 
-		while( my ($package, $specs) = each %provides )
-		{
+        while( my ($package, $specs) = each %provides )
+        {
             my $version = $specs->{version};
 
-			if ( my $existing_package = $packages_details->package($package) )
-			{
-                $existing_package->version($version) 
-                	if $version > $existing_package->version;
-			}
-			else
-			{
-				my $new_package = CPAN::Index::API::Object::Package->new(
-					name         => $package,
-					version      => $version,
-					distribution => $distro->path,
-				);
-				$packages_details->add_package($new_package);
-			}
-		}
-	}
+            if ( my $existing_package = $packages_details->package($package) )
+            {
+                $existing_package->version($version)
+                    if $version > $existing_package->version;
+            }
+            else
+            {
+                my $new_package = CPAN::Index::API::Object::Package->new(
+                    name         => $package,
+                    version      => $version,
+                    distribution => $distro->path,
+                );
+                $packages_details->add_package($new_package);
+            }
+        }
+    }
 
-	$packages_details->write_to_tarball;
+    $packages_details->write_to_tarball;
 }
 
 sub requires_distribution_roles { qw(Metadata) }

@@ -1,5 +1,7 @@
 package CPAN::Local::Role::Index;
 
+# ABSTRACT: Index a repo
+
 use strict;
 use warnings;
 

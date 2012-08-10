@@ -1,5 +1,7 @@
 package CPAN::Local::Role::Inject;
 
+# ABSTRACT: Add selected distributions to a repo
+
 use strict;
 use warnings;
 

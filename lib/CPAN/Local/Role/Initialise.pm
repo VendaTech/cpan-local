@@ -1,5 +1,7 @@
 package CPAN::Local::Role::Initialise;
 
+# ABSTRACT: Initialize an empty repo
+
 use strict;
 use warnings;
 

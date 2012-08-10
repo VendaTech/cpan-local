@@ -1,5 +1,7 @@
 package CPAN::Local::Role::Finalise;
 
+# ABSTRACT: Do something after updates complete
+
 use strict;
 use warnings;
 

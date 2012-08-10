@@ -1,5 +1,7 @@
 package CPAN::Local::Distribution::Role::NameInfo;
 
+# ABSTRACT: CPAN::DistnameInfo for a distribution
+
 use strict;
 use warnings;
 use CPAN::DistnameInfo;

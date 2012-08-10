@@ -1,5 +1,7 @@
 package CPAN::Local;
 
+# ABSTRACT: Hack custom CPAN repos
+
 use strict;
 use warnings;
 
@@ -44,7 +46,7 @@ has 'plugins' => (
     lazy_build => 1,
 );
 
-has 'config_filename' => 
+has 'config_filename' =>
 (
     is       => 'ro',
     isa      => 'Str',
@@ -54,9 +56,9 @@ has 'config_filename' =>
 
 has 'logger' =>
 (
-	is         => 'ro',
-	isa        => 'Log::Dispatchouli',
-	lazy_build => 1,
+    is         => 'ro',
+    isa        => 'Log::Dispatchouli',
+    lazy_build => 1,
 );
 
 has 'distribution_base_class' =>
@@ -66,13 +68,13 @@ has 'distribution_base_class' =>
     default => 'CPAN::Local::Distribution',
 );
 
-sub plugins_with 
+sub plugins_with
 {
     my ($self, $role) = @_;
 
     my $role_class = $self->root_namespace . '::Role::';
     $role =~ s/^-/$role_class/;
-    
+
     my @plugins = grep { $_->does($role) } values %{ $self->plugins };
     return @plugins;
 }
@@ -87,16 +89,16 @@ sub _build_logger
     });
 }
 
-sub _build_config 
+sub _build_config
 {
     my $self = shift;
-    
+
     my $location = file( $self->root, $self->config_filename )->stringify;
-    
+
     my $assembler = CPAN::Local::MVP::Assembler->new(
         root_namespace => $self->root_namespace,
     );
-    
+
     return Config::MVP::Reader::Finder->read_config(
         $location, { assembler => $assembler }
     );
@@ -112,9 +114,9 @@ sub _build_plugins
 
     my $role_prefix = "CPAN::Local::Distribution::Role::";
 
-    my @distribution_roles = 
-        map      { "$role_prefix$_" } 
-        uniq map { $_->package->requires_distribution_roles } 
+    my @distribution_roles =
+        map      { "$role_prefix$_" }
+        uniq map { $_->package->requires_distribution_roles }
         apply    { load_class $_->package }
             $self->config->sections;
 
@@ -127,13 +129,13 @@ sub _build_plugins
         )->name;
     }
 
-    for my $section ($self->config->sections) 
+    for my $section ($self->config->sections)
     {
         my $plugin = $section->package->new(
             %{ $section->payload },
-			root   => $self->root,
-			logger => $self->logger->proxy({ 
-				proxy_prefix => "[" . $section->name . "] "
+            root   => $self->root,
+            logger => $self->logger->proxy({
+                proxy_prefix => "[" . $section->name . "] "
             }),
             distribution_class => $distribution_class,
         );

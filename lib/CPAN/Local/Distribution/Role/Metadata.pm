@@ -1,5 +1,7 @@
 package CPAN::Local::Distribution::Role::Metadata;
 
+# ABSTRACT: Read a distribution's metadata
+
 use strict;
 use warnings;
 

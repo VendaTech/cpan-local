@@ -1,5 +1,7 @@
 package CPAN::Local::Plugin::Duplicates;
 
+# ABSTRACT: Remove duplicates
+
 use strict;
 use warnings;
 
@@ -10,8 +12,8 @@ use namespace::clean -except => 'meta';
 
 sub clean
 {
-	my ( $self, @distros ) = @_;
-    
+    my ( $self, @distros ) = @_;
+
     my (%paths, @cleaned);
 
     foreach my $distro ( @distros )

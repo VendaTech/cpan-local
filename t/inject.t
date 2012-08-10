@@ -58,7 +58,7 @@ is_deeply (
     'injected package names',
 );
 
-my $existing = grep { -e } map { file( $repo_root, $_->path ) } @injected; 
+my $existing = grep { -e } map { file( $repo_root, $_->path ) } @injected;
 
 is ( $existing, 2, 'injected tarballs exist' );
 

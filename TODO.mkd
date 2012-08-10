@@ -1,5 +1,0 @@
-CPAN::Local
-===========
-
-* Implement `requires_distribution_roles`
-* Documentation and release

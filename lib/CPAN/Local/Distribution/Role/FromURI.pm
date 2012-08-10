@@ -1,5 +1,7 @@
 package CPAN::Local::Distribution::Role::FromURI;
 
+# ABSTRACT: Allow distributions to be fetched from remote uri
+
 use strict;
 use warnings;
 use Carp        qw(croak);
@@ -12,7 +14,7 @@ use namespace::clean -except => 'meta';
 has uri   => ( is => 'ro', isa => 'Str' );
 has cache => ( is => 'ro', isa => 'Str' );
 
-around BUILDARGS => sub 
+around BUILDARGS => sub
 {
     my ( $orig, $class, %args ) = @_;
 
@@ -23,7 +25,7 @@ around BUILDARGS => sub
 
     my $uri = URI->new($args{uri});
     my $fake_filename = file($uri->path_segments)->stringify;
-    
+
     unless ( $args{path} and $args{authorid} )
     {
         my $fake_distro = CPAN::Local::Distribution->new(

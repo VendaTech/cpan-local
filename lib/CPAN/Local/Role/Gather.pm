@@ -1,5 +1,7 @@
 package CPAN::Local::Role::Gather;
 
+# ABSTRACT: Select distributions to add
+
 use strict;
 use warnings;
 

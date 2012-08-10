@@ -1,5 +1,7 @@
 package CPAN::Local::MVP::Assembler;
 
+# ABSTRACT: MVP assembler for CPAN::Local
+
 use strict;
 use warnings;
 

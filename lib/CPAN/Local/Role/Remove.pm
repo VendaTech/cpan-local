@@ -1,5 +1,7 @@
 package CPAN::Local::Role::Remove;
 
+# ABSTRACT: Remove distributions from the repo
+
 use strict;
 use warnings;
 

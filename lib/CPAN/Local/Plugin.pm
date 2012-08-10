@@ -1,5 +1,7 @@
 package CPAN::Local::Plugin;
 
+# ABSTRACT: Base class for plugins
+
 use strict;
 use warnings;
 
@@ -21,7 +23,7 @@ has 'distribution_class' =>
     required => 1,
 );
 
-sub create_distribution 
+sub create_distribution
 {
     my $self = shift;
     return $self->distribution_class->new(@_);

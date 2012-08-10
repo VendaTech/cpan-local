@@ -1,5 +1,7 @@
 package CPAN::Local::Distribution::Role::MD5;
 
+# ABSTRACT: Calculate checksums for a distribution
+
 use strict;
 use warnings;
 use Digest::MD5;

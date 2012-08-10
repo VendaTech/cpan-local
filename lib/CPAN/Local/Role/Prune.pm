@@ -1,5 +1,7 @@
 package CPAN::Local::Role::Prune;
 
+# ABSTRACT: Remove distributions from selection list
+
 use strict;
 use warnings;
 

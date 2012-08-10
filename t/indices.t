@@ -14,24 +14,24 @@ use Test::Most;
 ### SETUP ###
 
 my @distro_specs = (
-    { 
-        name        => 'File-Which', 
-        version     => '1.09', 
+    {
+        name        => 'File-Which',
+        version     => '1.09',
         cpan_author => 'ADAMK',
     },
-    { 
-        name        => 'Any-Moose', 
-        version     => '0.08', 
+    {
+        name        => 'Any-Moose',
+        version     => '0.08',
         cpan_author => 'SARTAK',
     },
-    { 
-        name        => 'Any-Moose', 
-        version     => '0.09', 
+    {
+        name        => 'Any-Moose',
+        version     => '0.09',
         cpan_author => 'SARTAK',
     },
-    { 
-        name        => 'common-sense', 
-        version     => '3.2', 
+    {
+        name        => 'common-sense',
+        version     => '3.2',
         cpan_author => 'MLEHMANN',
         provides    => [],
     },
@@ -48,7 +48,7 @@ foreach my $spec ( @distro_specs ) {
 
 ### LOAD ###
 
-my @distribution_roles = 
+my @distribution_roles =
     map { "CPAN::Local::Distribution::Role::$_" }
     CPAN::Local::Plugin::Indices->requires_distribution_roles;
 
@@ -118,8 +118,8 @@ is_deeply (
     'injected package names',
 );
 
-is ( 
-    $index->package('Any::Moose')->version, '0.08', 
+is (
+    $index->package('Any::Moose')->version, '0.08',
     'injected package version',
 );
 
@@ -130,8 +130,8 @@ $plugin->index( $distribution_class->new(
 
 $index = CPAN::Index::API::File::PackagesDetails->read_from_repo_path($repo_root);
 
-is ( 
-    $index->package('Any::Moose')->version, '0.09', 
+is (
+    $index->package('Any::Moose')->version, '0.09',
     'updated package version',
 );
 

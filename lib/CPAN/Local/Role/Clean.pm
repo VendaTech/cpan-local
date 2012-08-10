@@ -1,5 +1,7 @@
 package CPAN::Local::Role::Clean;
 
+# ABSTRACT: Remove orphan files
+
 use strict;
 use warnings;
 

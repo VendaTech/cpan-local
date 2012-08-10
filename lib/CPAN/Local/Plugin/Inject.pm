@@ -1,5 +1,7 @@
 package CPAN::Local::Plugin::Inject;
 
+# ABSTRACT: Inject a distribution into the repo
+
 use strict;
 use warnings;
 use CPAN::Inject;

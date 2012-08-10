@@ -31,8 +31,8 @@ $distro{authorid_and_filename} = $distribution_class->new(
 isa_ok ( $distro{authorid_and_filename}, 'CPAN::Local::Distribution' );
 isa_ok ( $distro{authorid_and_filename}->nameinfo, 'CPAN::DistnameInfo' );
 
-is ( $distro{authorid_and_filename}->path, 
-     'authors/id/A/AD/ADAMK/File-Which-1.09.tar.gz', 
+is ( $distro{authorid_and_filename}->path,
+     'authors/id/A/AD/ADAMK/File-Which-1.09.tar.gz',
      'calculate distro path' );
 
 $distro{filename} = $distribution_class->new(
@@ -41,8 +41,8 @@ $distro{filename} = $distribution_class->new(
 
 is ( $distro{filename}->authorid, 'ADAMK', 'calculate authorid' );
 
-dies_ok ( 
-    sub { 
+dies_ok (
+    sub {
         my $distro_filename_no_author = $distribution_class->new(
             filename => '/foo/bar/File-Which-1.09.tar.gz',
         );
@@ -61,8 +61,8 @@ isa_ok ( $distro{existing_filename}->metadata, 'CPAN::Meta' );
 
 my $fakepan = CPAN::Faker::HTTPD->new({ source => '.' });
 $fakepan->add_dist($fake_distro);
- 
-$fakepan->$_ for qw(_update_author_checksums write_package_index 
+
+$fakepan->$_ for qw(_update_author_checksums write_package_index
                  write_author_index write_modlist_index write_perms_index);
 
 my $distro_path = 'authors/id/L/LO/LOCAL/Foo-Bar-0.01.tar.gz';
