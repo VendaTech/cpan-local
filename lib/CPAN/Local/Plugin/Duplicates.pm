@@ -7,22 +7,22 @@ use warnings;
 
 use Moose;
 extends 'CPAN::Local::Plugin';
-with 'CPAN::Local::Role::Clean';
+with 'CPAN::Local::Role::Prune';
 use namespace::clean -except => 'meta';
 
-sub clean
+sub prune
 {
     my ( $self, @distros ) = @_;
 
-    my (%paths, @cleaned);
+    my (%paths, @needed);
 
     foreach my $distro ( @distros )
     {
         next if $paths{$distro->path}++;
-        push @cleaned, $distro;
+        push @needed, $distro;
     }
 
-    return @cleaned;
+    return @needed;
 }
 
 __PACKAGE__->meta->make_immutable;
