@@ -39,3 +39,15 @@ sub execute
 }
 
 __PACKAGE__->meta->make_immutable;
+
+=pod
+
+=head1 SYNOPSIS
+
+  % lpan update
+
+=head1 DESCRIPTION
+
+Update the repository in the current directory.
+
+=cut

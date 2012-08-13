@@ -17,3 +17,13 @@ sub _build_metadata
 }
 
 1;
+
+=pod
+
+=head1 ATTRIBUTES
+
+=head2 metadata
+
+L<CPAN::Meta> object representing the distribution's metadata.
+
+=cut

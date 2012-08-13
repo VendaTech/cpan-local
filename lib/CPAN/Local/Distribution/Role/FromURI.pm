@@ -1,6 +1,6 @@
 package CPAN::Local::Distribution::Role::FromURI;
 
-# ABSTRACT: Allow distributions to be fetched from remote uri
+# ABSTRACT: Allow distributions to be fetched from remote uris
 
 use strict;
 use warnings;
@@ -54,3 +54,44 @@ around BUILDARGS => sub
 };
 
 1;
+
+=pod
+
+  package CPAN::Local::Distribution::Custom
+  {
+    use Moose;
+    extends 'CPAN::Local::Distribution';
+    extends 'CPAN::Local::Distribution::Role::FromURI';
+  }
+
+  package main
+  {
+    my $distro = CPAN::Local::Distribution::Custom->new(
+        uri   => 'http:://www.somepan.org/authors/id/F/FO/FOOBAR/Foo-Bar-0.001.tar.gz',
+        cache => '/path/to/cache'
+    );
+
+    say $distro->filename; # /path/to/cache/authors/id/F/FO/FOOBAR/Foo-Bar-0.001.tar.gz
+    say $distro->authorid; # FOOBAR
+  }
+
+=head1 DESCRIPTION
+
+This role allows a distribution object to be created from a remote URI rather
+than from a local file. The URI will be fetched and saved locally, and
+L<CPAN::Local::Distribution/filename> will be set to the local file's name.
+
+=head1 ATTRIBUTES
+
+=head2 uri
+
+The remote distribution URI. The last part of the path must be a valid
+distribution name.
+
+=head2 cache
+
+Directory where the distribution will be downloaded to. A temporarary
+directory will be used if none is specified. If the distribution already
+exists in the cache, it will not be downloaded again.
+
+=cut

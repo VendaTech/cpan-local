@@ -13,3 +13,15 @@ sub execute
 }
 
 __PACKAGE__->meta->make_immutable;
+
+=pod
+
+=head1 SYNOPSIS
+
+  % lpan init
+
+=head1 DESCRIPTION
+
+Initiate a new repository in the current directory.
+
+=cut

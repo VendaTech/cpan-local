@@ -17,5 +17,14 @@ sub _build_md5
     return Digest::MD5->new->addfile($fh)->hexdigest;
 }
 
-
 1;
+
+=pod
+
+=head1 ATTRIBUTES
+
+=head2 md5
+
+Checksum for the distribution archive cacluclated using L<Digest::MD5>.
+
+=cut

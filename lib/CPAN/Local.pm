@@ -156,10 +156,8 @@ individual tasks related to mirror management are handled by separate plugins,
 and those plugins can be combined to achieve the desired behavior, or new
 ones can be written where further customizations is needed.
 
-=head1 MANUAL
-
-See L<CPAN::Local::Manual> for details on how to use and extend this library.
-This document only describes the C<CPAN::Local> class.
+This document describes the C<CPAN::Local> class, which represents a local
+repository with plugins configured to perform actions on it.
 
 =head1 ATTRIBUTES
 

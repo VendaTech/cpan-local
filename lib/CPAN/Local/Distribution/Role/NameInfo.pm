@@ -16,3 +16,14 @@ sub _build_nameinfo
 }
 
 1;
+
+=pod
+
+=head1 ATTRIBUTES
+
+=head2 nameinfo
+
+L<CPAN::DistnameInfo> object built from the distribution's
+L<CPAN::Local::Distribution/path>.
+
+=cut
