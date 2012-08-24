@@ -30,7 +30,7 @@ None.
 
 =head2 Returns
 
-List of <CPAN::Local::Distribution> objects representing distributions that
+List of L<CPAN::Local::Distribution> objects representing distributions that
 need to be added to the repository.
 
 =cut

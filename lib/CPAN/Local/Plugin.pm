@@ -52,7 +52,7 @@ Base class for distribution objects.
 
 =head2 requires_distribution_roles
 
-Empty class method. If overriden in a subclass should return a list of 
+Empty class method. If overriden in a subclass should return a list of
 distribution roles required by the respective plugin.
 
 =cut

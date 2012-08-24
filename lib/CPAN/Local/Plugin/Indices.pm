@@ -81,25 +81,25 @@ sub index
         {
             my $version = $specs->{version};
 
-			if ( my $existing_package = $packages_details->package($package) )
-			{
-                $existing_package->version($version) 
-                	if Perl::Version->new($version) > 
+            if ( my $existing_package = $packages_details->package($package) )
+            {
+                $existing_package->version($version)
+                    if Perl::Version->new($version) >
                        Perl::Version->new($existing_package->version);
-			}
-			else
-			{
-				my $new_package = CPAN::Index::API::Object::Package->new(
-					name         => $package,
-					version      => $version,
-					distribution => $distro->path,
-				);
-				$packages_details->add_package($new_package);
-			}
-		}
-	}
+            }
+            else
+            {
+                my $new_package = CPAN::Index::API::Object::Package->new(
+                    name         => $package,
+                    version      => $version,
+                    distribution => $distro->path,
+                );
+                $packages_details->add_package($new_package);
+            }
+        }
+    }
 
-	$packages_details->write_to_tarball;
+    $packages_details->write_to_tarball;
 }
 
 sub requires_distribution_roles { qw(Metadata) }
@@ -111,7 +111,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 IMPLEMENTS
 
-=over 
+=over
 
 =item L<CPAN::Local::Role::Initialise>
 
@@ -127,17 +127,17 @@ Initializes the following index files:
 
 =over
 
-=item C<authors/03mailrc>
+=item C<authors/01mailrc.txt.>
 
-=item C<authors/03mailrc>
+=item C<modules/02packages.details.txt.gz>
 
-=item C<authors/03mailrc>
+=item C<modules/03modlist.data.gz>
 
 =back
 
-head2 index
+=head2 index
 
-Updates C<02packages_details.txt.gz> with information about the
+Updates C<02packages.details.txt.gz> with information for the
 newly added distributions.
 
-=end
+=cut

@@ -26,7 +26,7 @@ following interface:
 
 =head2 Parameters
 
-List of <CPAN::Local::Distribution> objects representing distributions that
+List of L<CPAN::Local::Distribution> objects representing distributions that
 were successfully added to the repository.
 
 =head2 Returns

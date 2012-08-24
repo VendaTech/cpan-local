@@ -17,7 +17,7 @@ requires 'cleanup';
 =head1 DESCRIPTION
 
 Plugins implementing this role are executed whenever there is a request to
-clean up unused files in the repository. 
+clean up unused files in the repository.
 
 =head1 INTERFACE
 
@@ -26,10 +26,11 @@ following interface:
 
 =head2 Parameters
 
-None
+None.
 
 =head2 Returns
 
-List of paths to files under the repository root that this module knows about.
+List of paths to files under the repository root that this module cares about,
+and should not be cleaned.
 
 =cut

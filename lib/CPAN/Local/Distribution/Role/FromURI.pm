@@ -61,7 +61,7 @@ around BUILDARGS => sub
   {
     use Moose;
     extends 'CPAN::Local::Distribution';
-    extends 'CPAN::Local::Distribution::Role::FromURI';
+    with 'CPAN::Local::Distribution::Role::FromURI';
   }
 
   package main
