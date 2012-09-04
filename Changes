@@ -11,3 +11,6 @@ Revision history for CPAN-Local
 
 0.004   31 August 2012
         Fix some prerequisites
+
+0.005   4 September 2012
+        Fixes in 'update' command

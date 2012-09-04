@@ -16,7 +16,7 @@ sub execute
     ### COLLECT DISTRIBUTIONS TO INJECT ###
     foreach my $plugin ( $cpan_local->plugins_with('-Gather') )
     {
-        @distros = $plugin->gather(@distros);
+        push @distros, $plugin->gather(@distros);
     }
 
     ### REMOVE DUPLICATES, ETC. ###
@@ -35,6 +35,12 @@ sub execute
     foreach my $plugin ( $cpan_local->plugins_with('-Index') )
     {
         $plugin->index(@distros);
+    }
+
+    ### EXECUTE POST-UPDATE ACTIONS ###
+    foreach my $plugin ( $cpan_local->plugins_with('-Finalise') )
+    {
+        $plugin->finalise(@distros);
     }
 }
 
