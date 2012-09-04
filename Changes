@@ -8,3 +8,6 @@ Revision history for CPAN-Local
 
 0.003   14 August 2012
         Documentation fixes
+
+0.004   31 August 2012
+        Fix some prerequisites
