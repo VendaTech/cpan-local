@@ -1,0 +1,13 @@
+1. CPAN::Index::API
+   - refactor to use hashes instead of objects
+   - document
+   - `clone_with` method, remove read-write attributes
+   - fix `default_locations`
+   - add support for whois.xml and recent
+   - update CPAN::Local::Plugin::Indices
+2. CPAN::Local
+   - add missing commands
+   - add action interface
+   - add debugging messages
+3. Release CPAN::Local::Plugin mirror
+4. Perl 6 CPAN
