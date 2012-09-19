@@ -87,7 +87,7 @@ is ( $index->file('PackagesDetails')->package_count, 0, '02packages.details.txt.
 is ( $index->file('ModList')->module_count, 0, '03modlist.data.gz lines' );
 
 my $packages_details_uri = URI::file->new(
-    file($repo_root, 'modules', '02packages.details.txt')->stringify
+    file($repo_root, 'modules', '02packages.details.txt.gz')->stringify
 )->as_string;
 
 is ( $index->file('PackagesDetails')->uri, $packages_details_uri, '02packages.details uri');
@@ -113,13 +113,13 @@ $index = CPAN::Index::API::File::PackagesDetails->read_from_repo_path($repo_root
 # is ( $index->mail_rc->author_count, 2, 'update authors' );
 
 is_deeply (
-    [ map $_->name, $index->package_list ],
+    [ map $_->{name}, $index->packages ],
     [ 'Any::Moose', 'File::Which' ],
     'injected package names',
 );
 
 is (
-    $index->package('Any::Moose')->version, '0.08',
+    $index->package('Any::Moose')->{version}, '0.08',
     'injected package version',
 );
 
@@ -131,7 +131,7 @@ $plugin->index( $distribution_class->new(
 $index = CPAN::Index::API::File::PackagesDetails->read_from_repo_path($repo_root);
 
 is (
-    $index->package('Any::Moose')->version, '0.09',
+    $index->package('Any::Moose')->{version}, '0.09',
     'updated package version',
 );
 

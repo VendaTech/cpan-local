@@ -6,18 +6,16 @@ use strict;
 use warnings;
 
 use CPAN::Index::API;
-use CPAN::Index::API::Object::Package;
 use CPAN::Index::API::File::PackagesDetails;
 use File::Path;
 use CPAN::DistnameInfo;
 use Path::Class qw(file dir);
 use URI::file;
 use Perl::Version;
+use namespace::autoclean;
 use Moose;
 extends 'CPAN::Local::Plugin';
-with 'CPAN::Local::Role::Initialise';
-with 'CPAN::Local::Role::Index';
-use namespace::clean -except => 'meta';
+with qw(CPAN::Local::Role::Initialise CPAN::Local::Role::Index);
 
 has 'repo_uri' =>
 (
@@ -83,22 +81,22 @@ sub index
 
             if ( my $existing_package = $packages_details->package($package) )
             {
-                $existing_package->version($version)
+                $existing_package->{version} = $version
                     if Perl::Version->new($version) >
-                       Perl::Version->new($existing_package->version);
+                       Perl::Version->new($existing_package->{version});
             }
             else
             {
-                my $new_package = CPAN::Index::API::Object::Package->new(
+                $packages_details->add_package({
                     name         => $package,
                     version      => $version,
                     distribution => $distro->path,
-                );
-                $packages_details->add_package($new_package);
+                });
             }
         }
     }
 
+    $packages_details->rebuild_content;
     $packages_details->write_to_tarball;
 }
 
