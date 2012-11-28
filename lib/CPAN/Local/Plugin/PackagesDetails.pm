@@ -45,7 +45,7 @@ sub initialise
     my $self = shift;
 
     dir($self->root)->mkpath;
-    
+
     my $packages_details = CPAN::Index::API::File::PackagesDetails->new(
         repo_path => $self->root,
         $self->repo_uri ? ( repo_uri => $self->repo_uri ) : (),

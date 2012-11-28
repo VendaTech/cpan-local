@@ -48,7 +48,7 @@ sub initialise
     my $self = shift;
 
     dir($self->root)->mkpath;
-    
+
     my $mailrc = CPAN::Index::API::File::MailRc->new(
         repo_path => $self->root,
     );
@@ -63,7 +63,7 @@ sub index
     return if $self->no_update;
 
     my ( @authors, %seen_authors, %authors_in_repo );
-    
+
     # extract all author ids form the local 02packages.details file
     $authors_in_repo{$_}++ for map {
         CPAN::DistnameInfo->new($_->{distribution})->cpanid
@@ -79,19 +79,19 @@ sub index
         my $source_uri = $source =~ /$RE{URI}/ ? URI->new($source) : file($source)->uri;
 
         my $content = LWP::Simple::get($source_uri->as_string);
-        
+
         # handle tarballs
         if ($source_uri->path =~ /\.tar\.gz$/) {
             my $io = IO::String->new($content);
             my $gz = gzopen($io, 'rb') or croak "Cannot read gzipped mailrc: $gzerrno";
- 
+
             my ($buffer, $unzipped_content);
-         
+
             $unzipped_content .= $buffer while $gz->gzread($buffer) > 0 ;
-         
+
             croak "Error reading from mailrc: $gzerrno" . ($gzerrno+0) . "\n"
                 if $gzerrno != Z_STREAM_END;
-         
+
             $gz->gzclose and croak "Error closing mailrc";
 
             $content = $unzipped_content;

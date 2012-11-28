@@ -9,7 +9,7 @@ use CPAN::Index::API::File::PackagesDetails;
 use File::Temp  qw(tempdir);
 use Path::Class qw(file dir);
 
-my @mailrc_obj = map { CPAN::Index::API::File::MailRc->new(authors => $_) } 
+my @mailrc_obj = map { CPAN::Index::API::File::MailRc->new(authors => $_) }
     [
         { authorid => 'FOO', name => 'Foo', email => 'foo@foo.com' },
         { authorid => 'BAR', name => 'Bar', email => 'bar@bar.com' },

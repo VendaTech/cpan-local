@@ -1,5 +1,7 @@
 package CPAN::Local::Plugin::ModList;
 
+# ABSTRACT: Update 03modlist.data
+
 use CPAN::Index::API::File::ModList;
 use Path::Class qw(file dir);
 use namespace::autoclean;
@@ -12,7 +14,7 @@ sub initialise
     my $self = shift;
 
     dir($self->root)->mkpath;
-    
+
     my $modlist = CPAN::Index::API::File::ModList->new(
         repo_path => $self->root,
     );
