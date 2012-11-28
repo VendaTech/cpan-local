@@ -1,11 +1,41 @@
-1. CPAN::Index::API
-   - add support for whois.xml
-   - add support for recent
-   - refactor more stuff into roles and unify names
-2. Fix bug in CPAN::Inject
-3. CPAN::Local
-   - add missing commands
-   - add debugging messages
-   - refactor indices plugin
-   - add mirror plugin
-4. Perl 6 CPAN
+CPAN-LOCAL TODO
+===============
+
+High priority
+-------------
+
+### Large problems
+
+1. Updating author and modlist files
+2. Multiple distribution metadata providers
+
+    use Dist::MetaProvider; # loads metaproviders.ini
+
+    my $dist = Dist::MetaProvider->new(
+        'DistMetadata' => {},
+        'NameInfo'     => {},
+    );
+
+    $dist->build_metadata( file => $filename );
+
+3. Filtering of modules and distributions
+
+### Miscellaneous
+
+1. Track and fix bug in CPAN::Inject
+2. Fix distribution name for CPAN::Faker::HTTPD
+3. Add CPAN::Cache-based mirror plugin
+4. Fix author prefixes in distro paths in PackagesDetails
+
+Low priority
+------------
+
+### CPAN::Index::API
+
+1. Add generic documentation
+2. Fix modlist header parsing
+
+### CPAN::Local
+
+1. Add missing commands
+2. Add debugging messages
