@@ -156,6 +156,11 @@ individual tasks related to mirror management are handled by separate plugins,
 and those plugins can be combined to achieve the desired behavior, or new
 ones can be written where further customizations is needed.
 
+There are other libraries for managing a local CPAN mirror, but while all
+of them focus on functionality, CPAN::Local focuses entirely on extensibility.
+It is insipered by L<Dist::Zilla> and attempts to provide sufficient
+flexibility to acommodate the strangest of needs.
+
 This document describes the C<CPAN::Local> class, which represents a local
 repository with plugins configured to perform actions on it.
 
@@ -201,5 +206,113 @@ Returns all plugins that implement a given role. Only the last portion
 of the role name should be passed as an argument - i.e. if C<$role_name>
 is C<Index>, then all plugins implementing C<CPAN::Local::Role::Index>
 will be returned.
+
+=head1 SEE ALSO
+
+=head2 Other libraries for building private CPANs
+
+=over
+
+=item L<CPAN::Mini> and L<CPAN::Mini::Inject>
+
+=item L<Pinto>
+
+=item L<OrePAN>
+
+=item L<CPAN::Site>
+
+=item L<MyCPAN::App::DPAN>
+
+=back
+
+=head2 Useful modules for plugin authors
+
+B<Index files>
+
+=over
+
+=item L<CPAN::Index::API>
+
+Read and write 00whois.xml, 01mailrc.txt, 02packages.details.txt, and 03modlist.data
+
+=item L<PAUSE::Permissions>
+
+Read 06perms.txt
+
+=item L<CPAN::Indexer::Mirror>
+
+Write mirror.yml and mirror.json
+
+=item L<File::Rsync::Mirror::Recentfile>
+
+Read and write RECENT-XX.json files
+
+=item L<Parse::CPAN::MirroredBy>
+
+Read MIRRORED.BY
+
+=item L<Parse::CPAN::Distributions>
+
+Read find-ls
+
+=item L<CPAN::Checksums>
+
+Read and write checksums
+
+=back
+
+B<Populating a repository>
+
+=over
+
+=item L<CPAN::Inject> - Add a distribution tarball to a local mirror
+
+=item L<CPAN::Cache> - Mirror a file from a remote repo
+
+=back
+
+B<Distribution metadata>
+
+=over
+
+=item L<CPAN::DistnameInfo>
+
+Parse a distribution filename
+
+=item L<Dist::Metadata>
+
+Read a distribution META file
+
+=item L<CPAN::ParseDistribution>
+
+Use regular expressions to find distribution name, version, and provided packages
+
+=item L<Perl::PrereqScanner>
+
+Use PPI to find a distribution's dependencies
+
+=item L<Module::Depends::Intrusive>
+
+Execute Makefile.PL/Build.PL to find a distribution's dependencies
+
+=back
+
+B<Testing>
+
+=over
+
+=item L<CPAN::Faker> - Build a dummy repo for testing
+
+=item L<CPAN::Faker::HTTPD> - Build a dummy repo and serve it over http
+
+=back
+
+B<Miscellaneous>
+
+=over
+
+=item L<CPAN::Visitor> - Traverse distributions in a repo
+
+=back
 
 =cut

@@ -1,5 +1,8 @@
 Revision history for CPAN-Local
 
+0.009   11 December 2012
+        Docs: add links to related modules
+
 0.008   11 December 2012
         Drop 'authors/id' when writing distribution paths in P::PackagesDetails
         Mark P::Indices as deprecated
