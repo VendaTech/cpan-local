@@ -90,10 +90,18 @@ sub index
             }
             else
             {
+                my $path = file($distro->path);
+
+                # drop 'authors/id' from the distro path
+                my $distribution = file(
+                    $path->dir->dir_list(2),
+                    $path->basename,
+                )->as_foreign('Unix')->stringify;
+
                 $packages_details->add_package({
                     name         => $package,
                     version      => $version,
-                    distribution => $distro->path,
+                    distribution => $distribution,
                 });
             }
         }

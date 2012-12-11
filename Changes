@@ -1,5 +1,12 @@
 Revision history for CPAN-Local
 
+0.008   11 December 2012
+        Drop 'authors/id' when writing distribution paths in P::PackagesDetails
+        Mark P::Indices as deprecated
+
+0.007   28 November 2012
+        Split P::Indices into three separate plugins, one per file
+
 0.006   18 September 2012
         Update to work with latest version of CPAN::Index::API
 

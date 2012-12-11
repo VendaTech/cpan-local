@@ -4,38 +4,30 @@ CPAN-LOCAL TODO
 High priority
 -------------
 
-### Large problems
-
-1. Updating author and modlist files
-2. Multiple distribution metadata providers
-
-    use Dist::MetaProvider; # loads metaproviders.ini
-
-    my $dist = Dist::MetaProvider->new(
-        'DistMetadata' => {},
-        'NameInfo'     => {},
-    );
-
-    $dist->build_metadata( file => $filename );
-
-3. Filtering of modules and distributions
-
-### Miscellaneous
-
-1. Track and fix bug in CPAN::Inject
-2. Fix distribution name for CPAN::Faker::HTTPD
-3. Add CPAN::Cache-based mirror plugin
-4. Fix author prefixes in distro paths in PackagesDetails
+1. Add better docs
 
 Low priority
 ------------
 
-### CPAN::Index::API
+1. CPAN::Index::API - Add generic documentation
+2. CPAN::Index::API - Fix modlist header parsing
+3. CPAN::Index::API - Support for 06perms.txt
+4. CPAN::Local - Add missing commands
+5. CPAN::Local - Add debugging messages
+6. CPAN::Local - Add CPAN::Cache-based mirror plugin
+7. CPAN::Inject - Track and fix bug
 
-1. Add generic documentation
-2. Fix modlist header parsing
+### Dist::Metadata::Resilient
 
-### CPAN::Local
+    Dist::Metadata::Resilient->new
+        auto_provides => 1,
+        override_meta => $path_to_meta_file,
+        merge_meta    => $path_to_partial_meta_file,
+    );
 
-1. Add missing commands
-2. Add debugging messages
+* if we have an explicit META.yml, use that instead of original
+* if we have override in META.yml, merge it with original META.yml and use that struct
+* try CPAN::Meta
+* if that fails, try with `lazy_validation` for CPAN::Meta
+* if that still fails, we have an invalid metadata file - rebuild without it with Dist::Nameinfo
+* if we don't have 'provides', add from distribution name

@@ -115,6 +115,13 @@ is (
     'injected package version',
 );
 
+is (
+    $index->package('Any::Moose')->{distribution},
+    'S/SA/SARTAK/Any-Moose-0.08.tar.gz',
+    'injected package distribution path',
+);
+
+
 $plugin->index( $distribution_class->new(
     authorid => 'SARTAK',
     filename => file($distro_dir, 'Any-Moose-0.09.tar.gz')->stringify,

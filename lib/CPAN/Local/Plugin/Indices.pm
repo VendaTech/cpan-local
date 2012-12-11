@@ -1,9 +1,15 @@
 package CPAN::Local::Plugin::Indices;
 
-# ABSTRACT: Update index files
+# ABSTRACT: [DEPRECATED] Update index files
 
 use strict;
 use warnings;
+
+BEGIN {
+    warn "CPAN::Local::Plugin::Indices is deprecated. "
+       . "Please use PackagesDetails, ModList and MalRc plugins instead."
+    unless $ENV{HARNESS_ACTIVE};
+}
 
 use CPAN::Index::API;
 use CPAN::Index::API::File::PackagesDetails;
