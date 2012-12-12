@@ -132,17 +132,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head2 initialise
 
-Initializes the following index files:
-
-=over
-
-=item C<authors/01mailrc.txt.>
-
-=item C<modules/02packages.details.txt.gz>
-
-=item C<modules/03modlist.data.gz>
-
-=back
+Initializes an empty C<modules/02packages.details.txt.gz>.
 
 =head2 index
 

@@ -1,5 +1,9 @@
 Revision history for CPAN-Local
 
+0.010   12 December 2012
+        Docs: added new CPAN::Local::Manual
+        Docs: fixed oboslete docs for P::PackagesDetails
+
 0.009   11 December 2012
         Docs: add links to related modules
 
